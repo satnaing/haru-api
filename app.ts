@@ -3,11 +3,11 @@ import morgan from "morgan";
 
 const app = express();
 
-app.use(morgan("tiny"));
+app.use(morgan("dev"));
 
 app.get("/hello", (req, res) => {
   res.status(200).json({
-    message: "Hello World",
+    message: "Hello World!!!",
   });
 });
 

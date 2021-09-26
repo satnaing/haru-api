@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "node dist/server.js",
-    "dev": "nodemon server.ts",
+    "devStart": "nodemon server.ts",
+    "dev": "docker-compose up",
+    "devBuild": "docker-compose up --build",
     "build": "tsc -p .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

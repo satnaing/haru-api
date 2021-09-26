@@ -1,0 +1,10 @@
+version: "3"
+services:
+  node-app:
+    build: .
+    env_file: .env
+    ports:
+      - "${PORT}:${PORT}"
+    volumes:
+      - .:/app
+      - /app/node_modules
