@@ -1,4 +1,4 @@
-version: "3"
+version: "3.9"
 services:
   node-app:
     build: .
@@ -8,3 +8,20 @@ services:
     volumes:
       - .:/app
       - /app/node_modules
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres
+    env_file: .env
+    restart: unless-stopped
+    ports:
+      - "5431:5432"
+    environment:
+      POSTGRES_USER: $POSTGRES_USER
+      POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+    volumes:
+      - postgres:/var/lib/postgresql/data
+
+volumes:
+  postgres:
