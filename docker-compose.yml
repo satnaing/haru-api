@@ -12,7 +12,7 @@ services:
       - postgres
 
   postgres:
-    image: postgres
+    image: postgres:14rc1-alpine
     env_file: .env
     restart: unless-stopped
     ports:
