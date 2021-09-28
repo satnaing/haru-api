@@ -7,7 +7,7 @@ services:
       - "${PORT}:${PORT}"
     volumes:
       - .:/app
-      - /app/node_modules
+      # - /app/node_modules
     depends_on:
       - postgres
 
@@ -16,7 +16,7 @@ services:
     env_file: .env
     restart: unless-stopped
     ports:
-      - "5431:5432"
+      - "5432:5432"
     environment:
       POSTGRES_USER: $POSTGRES_USER
       POSTGRES_PASSWORD: $POSTGRES_PASSWORD

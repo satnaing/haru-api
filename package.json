@@ -9,10 +9,12 @@
     "dev": "docker-compose up",
     "devBuild": "docker-compose up --build",
     "build": "tsc -p .",
+    "migrate:test": "dotenv -e .env.test -- npx prisma migrate dev --name postgres-init",
+    "seed:test": "dotenv -e .env.test -- npx prisma db seed",
     "generate:test": "dotenv -e .env.test -- npx prisma generate",
     "dockerTest:up": "docker-compose -f docker-compose.test.yml up -d",
     "dockerTest:down": "docker-compose -f docker-compose.test.yml down",
-    "test": "npm run dockerTest:up && npm run generate:test && dotenv -e .env.test jest -i && npm run dockerTest:down"
+    "test:e2e": "npm run dockerTest:up && npm run migrate:test && npm run seed:test && dotenv -e .env.test jest -- --watchAll"
   },
   "prisma": {
     "seed": "ts-node db/seed.ts"
@@ -30,6 +32,7 @@
     "@types/jest": "^27.0.2",
     "@types/morgan": "^1.9.3",
     "@types/node": "^16.10.1",
+    "@types/supertest": "^2.0.11",
     "jest": "^27.2.2",
     "jest-mock-extended": "^2.0.4",
     "morgan": "^1.10.0",
