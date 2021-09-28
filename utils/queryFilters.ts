@@ -1,9 +1,9 @@
 type OrderType = { [key: string]: string };
 
-export const selectQuery = (query: string) =>
+export const selectedQuery = (query: string) =>
   query.split(",").reduce((a, v) => ({ ...a, [v]: true }), {});
 
-export const orderQuery = (query: string, orderArray: OrderType[]) => {
+export const orderedQuery = (query: string, orderArray: OrderType[]) => {
   const sortLists = query.split(",");
   sortLists.forEach((sl) => {
     const obj: OrderType = {};

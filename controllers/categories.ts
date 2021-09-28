@@ -2,7 +2,8 @@ import prisma from "../prisma/client";
 import asyncHandler from "../middlewares/asyncHandler";
 import ErrorResponse from "../utils/errorResponse";
 import { resource404Error } from "../utils/errorObject";
-import { orderQuery, selectQuery } from "../utils/queryFilters";
+import { orderedQuery, selectedQuery } from "../utils/queryFilters";
+import { Prisma } from ".prisma/client";
 
 // @desc    Get all categories
 // @route   GET /api/v1/categories
@@ -16,17 +17,17 @@ export const getCategories = asyncHandler(async (req, res, next) => {
   const queryOrder = req.query.order_by;
 
   // Filter and Sorting initial values
-  let select = undefined;
+  let select: Prisma.CategorySelect | undefined = undefined;
   let orderBy: OrderType[] = [];
 
   // If select is sent along with request
   if (querySelect) {
-    select = selectQuery(querySelect as string);
+    select = selectedQuery(querySelect as string);
   }
 
   // If order_by is sent along with request
   if (queryOrder) {
-    orderBy = orderQuery(queryOrder as string, orderBy);
+    orderBy = orderedQuery(queryOrder as string, orderBy);
   }
 
   // Find categories with Prisma Client
@@ -44,8 +45,16 @@ export const getCategories = asyncHandler(async (req, res, next) => {
 export const getCategory = asyncHandler(async (req, res, next) => {
   const id = parseInt(req.params.id);
 
+  const querySelect = req.query.select;
+  let select: Prisma.CategorySelect | undefined = undefined;
+
+  if (querySelect) {
+    select = selectedQuery(querySelect as string);
+  }
+
   const category = await prisma.category.findUnique({
     where: { id },
+    select,
   });
 
   if (!category) {

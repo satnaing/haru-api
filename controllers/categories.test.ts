@@ -27,7 +27,7 @@ describe("Categories Controller", () => {
       });
     });
 
-    it("GET /categories --> select name, desc", async () => {
+    it("GET /categories --> select name, description", async () => {
       const response = await request(app)
         .get(url)
         .query({ select: "name,description" })
@@ -66,6 +66,21 @@ describe("Categories Controller", () => {
         data: expect.objectContaining({
           id: 3,
         }),
+      });
+    });
+
+    it("GET /categories/:id --> select name", async () => {
+      const response = await request(app)
+        .get(`${url}/3`)
+        .query({ select: "name" })
+        .expect("Content-Type", /json/)
+        .expect(200);
+
+      expect(response.body).toEqual({
+        success: true,
+        data: {
+          name: expect.any(String),
+        },
       });
     });
 
