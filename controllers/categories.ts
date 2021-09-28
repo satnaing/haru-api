@@ -2,6 +2,7 @@ import prisma from "../prisma/client";
 import asyncHandler from "../middlewares/asyncHandler";
 import ErrorResponse from "../utils/errorResponse";
 import { resource404Error } from "../utils/errorObject";
+import { orderQuery, selectQuery } from "../utils/queryFilters";
 
 // @desc    Get all categories
 // @route   GET /api/v1/categories
@@ -20,21 +21,12 @@ export const getCategories = asyncHandler(async (req, res, next) => {
 
   // If select is sent along with request
   if (querySelect) {
-    select = (querySelect as string)
-      .split(",")
-      .reduce((a, v) => ({ ...a, [v]: true }), {});
+    select = selectQuery(querySelect as string);
   }
 
   // If order_by is sent along with request
   if (queryOrder) {
-    const sortLists = (queryOrder as string).split(",");
-    sortLists.forEach((sl) => {
-      const obj: OrderType = {};
-
-      const fields = sl.split(".");
-      obj[fields[0]] = fields[1] || "asc";
-      orderBy = [...orderBy, obj];
-    });
+    orderBy = orderQuery(queryOrder as string, orderBy);
   }
 
   // Find categories with Prisma Client
