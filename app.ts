@@ -1,5 +1,6 @@
 import express from "express";
 import morgan from "morgan";
+import errorHandler from "./middlewares/errorHandler";
 
 // import routes
 import categories from "./routers/categories";
@@ -11,5 +12,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/v1/categories", categories);
+
+app.use(errorHandler);
 
 export default app;

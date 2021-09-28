@@ -1,5 +1,5 @@
 import { ErrorRequestHandler } from "express";
-import ErrorResponse from "../utils/ErrorResponse";
+import { defaultError } from "../utils/errorObject";
 
 const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
   let error = { ...err };
@@ -12,7 +12,7 @@ const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
 
   res.status(error.statusCode || 500).json({
     success: false,
-    error: error.message || "Internal Server Error",
+    error: error.errObj || defaultError,
   });
 };
 
