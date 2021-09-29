@@ -39,15 +39,18 @@ jobs:
           keys:
             - node-deps-v1-{{ .Branch }}-{{ checksum "package-lock.json" }}
       - run:
-          name: Up docker test container
-          command: docker-compose -f docker-compose.test.yml up -d
-      - run:
           name: Install Dependencies
           command: npm ci
       - save_cache:
           key: node-deps-v1-{{ .Branch }}-{{ checksum "package-lock.json" }}
           paths:
             - node_modules
+      - run:
+          name: Up docker test container
+          command: docker-compose -f docker-compose.test.yml up
+      - run:
+          name: Wait for db
+          command: dockerize -wait tcp://localhost:5437 -timeout 1m
       - run:
           name: Run migration
           command: npx prisma migrate dev --name postgres-init
