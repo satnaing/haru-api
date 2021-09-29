@@ -8,10 +8,6 @@ jobs:
     docker:
       - image: cimg/node:16.10
       - image: postgres:14rc1-alpine
-        environment:
-          POSTGRES_USER: prisma
-          POSTGRES_PASSWORD: prisma
-          POSTGRES_DB: tests
     environment:
       DATABASE_URL: "postgresql://prisma:prisma@localhost:5432/tests"
     steps:
