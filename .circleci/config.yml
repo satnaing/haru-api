@@ -50,7 +50,7 @@ jobs:
           command: docker-compose -f docker-compose.test.yml up -d
       - run:
           name: Wait for db
-          command: dockerize -wait tcp://localhost:5432 -timeout 1m
+          command: dockerize -wait tcp://localhost:5437 -timeout 1m
       - run:
           name: Run migration
           command: npx prisma migrate dev --name postgres-init
