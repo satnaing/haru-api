@@ -59,7 +59,7 @@ jobs:
           command: npx prisma db seed
       - run:
           name: Run test with Jest
-          command: jest
+          command: npm run jest -i
 
 workflows:
   main-workflow:
