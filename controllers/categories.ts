@@ -1,7 +1,11 @@
 import prisma from "../prisma/client";
 import asyncHandler from "../middlewares/asyncHandler";
 import ErrorResponse from "../utils/errorResponse";
-import { idNotSpecifiedError, resource404Error } from "../utils/errorObject";
+import {
+  errorTypes,
+  idNotSpecifiedError,
+  resource404Error,
+} from "../utils/errorObject";
 import { orderedQuery, selectedQuery } from "../utils/queryFilters";
 import { Prisma } from ".prisma/client";
 
@@ -44,10 +48,10 @@ export const getCategories = asyncHandler(async (req, res, next) => {
 // @access  Public
 export const getCategory = asyncHandler(async (req, res, next) => {
   const id = parseInt(req.params.id);
-
   const querySelect = req.query.select;
-  let select: Prisma.CategorySelect | undefined = undefined;
+  let select: Prisma.CategorySelect | undefined;
 
+  // If select specific fields, response only selected query
   if (querySelect) {
     select = selectedQuery(querySelect as string);
   }
@@ -57,6 +61,7 @@ export const getCategory = asyncHandler(async (req, res, next) => {
     select,
   });
 
+  // Throws an error if category does not exists
   if (!category) {
     return next(new ErrorResponse(resource404Error, 404));
   }
@@ -77,32 +82,20 @@ export const createCategory = asyncHandler(async (req, res, next) => {
   const thumbnailImage: string | undefined = req.body.thumbnailImage;
   let name: string | undefined;
 
+  // Throws an error if name is not specified
   if (!queryName) {
     const noNameError = {
       status: 400,
-      type: "missingCategoryName",
+      type: errorTypes.missingCategoryName,
       message: "category name field is missing",
     };
     return next(new ErrorResponse(noNameError, 400));
   }
 
-  if (queryName) {
-    name = queryName.trim().toLowerCase();
-  }
+  // Trim the name and change it to lower-case
+  name = queryName.trim().toLowerCase();
 
-  const nameExists = await prisma.category.findUnique({
-    where: { name },
-  });
-
-  if (nameExists) {
-    const nameExistsError = {
-      status: 400,
-      type: "alreadyExists",
-      message: "category name already exists",
-    };
-    return next(new ErrorResponse(nameExistsError, 400));
-  }
-
+  // Create a category in prisma client
   const category = await prisma.category.create({
     data: {
       id: id as number,

@@ -2,7 +2,11 @@ import app from "../app";
 import express from "express";
 import request from "supertest";
 import "jest-sorted";
-import { idNotSpecifiedError, resource404Error } from "../utils/errorObject";
+import {
+  errorTypes,
+  idNotSpecifiedError,
+  resource404Error,
+} from "../utils/errorObject";
 
 const url = "/api/v1/categories";
 
@@ -146,8 +150,8 @@ describe("Categories Controller", () => {
         success: false,
         error: {
           status: 400,
-          type: "alreadyExists",
-          message: "category name already exists",
+          type: errorTypes.alreadyExists,
+          message: "name already exists",
         },
       });
     });
@@ -162,7 +166,7 @@ describe("Categories Controller", () => {
         success: false,
         error: {
           status: 400,
-          type: "missingCategoryName",
+          type: errorTypes.missingCategoryName,
           message: "category name field is missing",
         },
       });
@@ -200,8 +204,8 @@ describe("Categories Controller", () => {
         success: false,
         error: {
           status: 404,
-          type: "notFound",
-          message: "Record to delete does not exist.",
+          type: errorTypes.notFound,
+          message: "record to delete does not exist.",
         },
       });
     });

@@ -1,5 +1,5 @@
 import { ErrorRequestHandler } from "express";
-import errorObj, { defaultError } from "../utils/errorObject";
+import errorObj, { defaultError, errorTypes } from "../utils/errorObject";
 import ErrorResponse from "../utils/errorResponse";
 
 const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
@@ -14,9 +14,23 @@ const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
   //   error = new ErrorResponse(message, 404)
   // }
 
+  // Unique constraint failed
+  if (err.code === "P2002") {
+    const uniqueConstraintError = errorObj(
+      400,
+      errorTypes.alreadyExists,
+      `${err.meta.target[0]} already exists`
+    );
+    error = new ErrorResponse(uniqueConstraintError, 400);
+  }
+
   // Record to do something not found
   if (err.code === "P2025") {
-    const errNotFoundObj = errorObj(404, "notFound", err.meta.cause);
+    const errNotFoundObj = errorObj(
+      404,
+      errorTypes.notFound,
+      (err.meta.cause as string).toLowerCase()
+    );
     error = new ErrorResponse(errNotFoundObj, 404);
   }
 

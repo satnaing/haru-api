@@ -4,7 +4,7 @@ orbs:
   node: circleci/node@4.7
 
 jobs:
-  build-and-test:
+  unit-tests-and-integration-tests:
     docker:
       - image: cimg/node:16.10
       - image: postgres:14rc1-alpine
@@ -17,24 +17,11 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Waiting for Postgres to be ready
-          command: |
-            for i in `seq 1 10`;
-            do
-              nc -z localhost 5432 && echo Success && exit 0
-              echo -n .
-              sleep 1
-            done
-            echo Failed waiting for Postgress && exit 1
-      - setup_remote_docker
-      - run:
           name: Install Docker Compose
           command: |
             curl -L https://github.com/docker/compose/releases/download/1.11.2/docker-compose-`uname -s`-`uname -m` > ~/docker-compose
             chmod +x ~/docker-compose
             sudo mv ~/docker-compose /usr/local/bin/docker-compose
-      - node/install-packages:
-          pkg-manager: npm
       - restore_cache:
           keys:
             - node-deps-v1-{{ .Branch }}-{{ checksum "package-lock.json" }}
@@ -49,7 +36,7 @@ jobs:
           name: Up docker test container
           command: docker-compose -f docker-compose.test.yml up -d
       - run:
-          name: Wait for db
+          name: Test database connection
           command: dockerize -wait tcp://localhost:5432 -timeout 1m
       - run:
           name: Run migration
@@ -64,5 +51,5 @@ jobs:
 workflows:
   main-workflow:
     jobs:
-      - build-and-test
+      - unit-test-and-integration-test
       # - node/test
