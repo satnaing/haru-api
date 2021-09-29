@@ -6,6 +6,7 @@ orbs:
 jobs:
   build-and-test:
     docker:
+      - image: ubuntu-2004:202010-01
       - image: cimg/node:16.10
       - image: postgres:14rc1-alpine
         environment:
