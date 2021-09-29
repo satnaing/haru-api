@@ -105,7 +105,7 @@ describe("Categories Controller", () => {
   describe("Create Category", () => {
     it("POST /categories --> create a new category", async () => {
       const newUser = {
-        id: 4,
+        id: 777,
         name: "sneakers",
         description: "sapien non mi integer ac neque duis bibendum morbi non",
         thumbnailImage: "http://dummyimage.com/720x400.png/cc0000/ffffff",
@@ -179,24 +179,12 @@ describe("Categories Controller", () => {
 
   describe("Delete Category", () => {
     it("DELETE /categories/:id --> delete a specific category", async () => {
-      const response = await request(app).delete(`${url}/4`).expect(204);
+      const response = await request(app).delete(`${url}/777`).expect(204);
     });
-
-    // it("DELETE /categories/:id --> return badRequest error if id not specified", async () => {
-    //   const response = await request(app)
-    //     .delete(`${url}`)
-    //     .expect("Content-Type", /json/)
-    //     .expect(400);
-
-    //   expect(response.body).toEqual({
-    //     success: false,
-    //     error: idNotSpecifiedError,
-    //   });
-    // });
 
     it("DELETE /categories/:id --> return 404 error if category not found", async () => {
       const response = await request(app)
-        .delete(`${url}/4`)
+        .delete(`${url}/777`)
         .expect("Content-Type", /json/)
         .expect(404);
 
