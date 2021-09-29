@@ -1,7 +1,7 @@
 import prisma from "../prisma/client";
 import asyncHandler from "../middlewares/asyncHandler";
 import ErrorResponse from "../utils/errorResponse";
-import { resource404Error } from "../utils/errorObject";
+import { idNotSpecifiedError, resource404Error } from "../utils/errorObject";
 import { orderedQuery, selectedQuery } from "../utils/queryFilters";
 import { Prisma } from ".prisma/client";
 
@@ -70,4 +70,69 @@ export const getCategory = asyncHandler(async (req, res, next) => {
 // @desc    Create a new category
 // @route   POST /api/v1/categories
 // @access  Private (admin)
-// export const
+export const createCategory = asyncHandler(async (req, res, next) => {
+  const queryName: string | undefined = req.body.name;
+  const id: number | undefined = parseInt(req.body.id) || undefined;
+  const description: string | undefined = req.body.description;
+  const thumbnailImage: string | undefined = req.body.thumbnailImage;
+  let name: string | undefined;
+
+  if (!queryName) {
+    const noNameError = {
+      status: 400,
+      type: "missingCategoryName",
+      message: "category name field is missing",
+    };
+    return next(new ErrorResponse(noNameError, 400));
+  }
+
+  if (queryName) {
+    name = queryName.trim().toLowerCase();
+  }
+
+  const nameExists = await prisma.category.findUnique({
+    where: { name },
+  });
+
+  if (nameExists) {
+    const nameExistsError = {
+      status: 400,
+      type: "alreadyExists",
+      message: "category name already exists",
+    };
+    return next(new ErrorResponse(nameExistsError, 400));
+  }
+
+  const category = await prisma.category.create({
+    data: {
+      id: id as number,
+      name: name as string,
+      description,
+      thumbnailImage,
+    },
+  });
+
+  res.status(201).json({
+    success: true,
+    location: `${req.protocol}://${req.get("host")}${req.baseUrl}/${
+      category.id
+    }`,
+    data: category,
+  });
+});
+
+// @desc    Delete a category
+// @route   DELETE /api/v1/categories/:id
+// @access  Private (admin)
+export const deleteCategory = asyncHandler(async (req, res, next) => {
+  const id = parseInt(req.params.id);
+
+  await prisma.category.delete({
+    where: { id },
+  });
+
+  res.status(204).json({
+    success: true,
+    data: [],
+  });
+});

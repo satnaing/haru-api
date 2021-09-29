@@ -14,7 +14,7 @@
     "generate:test": "dotenv -e .env.test -- npx prisma generate",
     "dockerTest:up": "docker-compose -f docker-compose.test.yml up -d",
     "dockerTest:down": "docker-compose -f docker-compose.test.yml down",
-    "test": "npm run dockerTest:up && npm run migrate:test && npm run seed:test && dotenv -e .env.test jest -- --watchAll",
+    "test": "npm run dockerTest:up && sleep 5; npm run migrate:test && npm run seed:test && dotenv -e .env.test jest -- --watchAll",
     "test:circle": "jest -i"
   },
   "prisma": {

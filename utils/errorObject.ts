@@ -23,9 +23,15 @@ export const defaultError = errorObj(
   "Internal Server Error"
 );
 
-export const page404Error = errorObj(404, "notFound", "Page Not Found");
+export const page404Error = errorObj(404, "notFound", "page not found");
 
-export const resource404Error = errorObj(404, "notFound", "Resource Not Found");
+export const resource404Error = errorObj(404, "notFound", "resource not found");
+
+export const idNotSpecifiedError = errorObj(
+  400,
+  "badRequest",
+  "id not specified in the request"
+);
 
 export default errorObj;
 

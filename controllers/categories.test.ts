@@ -1,7 +1,8 @@
 import app from "../app";
+import express from "express";
 import request from "supertest";
 import "jest-sorted";
-import { resource404Error } from "../utils/errorObject";
+import { idNotSpecifiedError, resource404Error } from "../utils/errorObject";
 
 const url = "/api/v1/categories";
 
@@ -86,7 +87,7 @@ describe("Categories Controller", () => {
 
     it("GET /categories/:id --> 404 if not found", async () => {
       const response = await request(app)
-        .get(`${url}/4`)
+        .get(`${url}/99`)
         .expect("Content-Type", /json/)
         .expect(404);
 
@@ -99,22 +100,112 @@ describe("Categories Controller", () => {
 
   describe("Create Category", () => {
     it("POST /categories --> create a new category", async () => {
-      const response = await request(app).post(url);
+      const newUser = {
+        id: 4,
+        name: "sneakers",
+        description: "sapien non mi integer ac neque duis bibendum morbi non",
+        thumbnailImage: "http://dummyimage.com/720x400.png/cc0000/ffffff",
+      };
 
-      const uriRegEx = /^([^:]*):([^:]*):(.*)\/categories\/4$/;
-      expect("http://localhost:5000/api/v1/categories/4").toMatch(uriRegEx);
-      // .expect("Content-Type", /json/)
-      // .expect(201);
+      const response = await request(app)
+        .post(url)
+        .send(newUser)
+        .expect("Content-Type", /json/)
+        .expect(201);
 
-      // expect(response.body).toEqual({
-      //   success: true,
-      //   location: expect.any(String),
-      //   data: {}
-      //   // location: `${req.protocol}://${req.get("host")}
-      //   // /api/v1/resetpassword/${resetToken}`;
-      // })
+      const uriRegEx = /^([^:]*):([^:]*):(.*)\/categories\/\d*$/;
+
+      expect(response.body.location).toMatch(uriRegEx);
+
+      expect(response.body).toEqual(
+        expect.objectContaining({
+          success: true,
+          data: {
+            ...newUser,
+            id: expect.any(Number),
+            createdAt: expect.any(String),
+            updatedAt: null,
+          },
+        })
+      );
     });
 
-    it("POST /categories --> return error if name already exists", () => {});
+    it("POST /categories --> return error if name already exists", async () => {
+      const newUser = {
+        name: "men",
+        description: "sapien non mi integer",
+      };
+      const response = await request(app)
+        .post(url)
+        .send(newUser)
+        .set("Accept", "application/json")
+        .expect("Content-Type", /json/)
+        .expect(400);
+
+      expect(response.body).toEqual({
+        success: false,
+        error: {
+          status: 400,
+          type: "alreadyExists",
+          message: "category name already exists",
+        },
+      });
+    });
+
+    it("POST /categories --> return error if name is not sent in body", async () => {
+      const response = await request(app)
+        .post(url)
+        .expect("Content-Type", /json/)
+        .expect(400);
+
+      expect(response.body).toEqual({
+        success: false,
+        error: {
+          status: 400,
+          type: "missingCategoryName",
+          message: "category name field is missing",
+        },
+      });
+    });
+
+    // Validation Body Fields
+
+    // Auth Access
+  });
+
+  describe("Delete Category", () => {
+    it("DELETE /categories/:id --> delete a specific category", async () => {
+      const response = await request(app).delete(`${url}/4`).expect(204);
+    });
+
+    // it("DELETE /categories/:id --> return badRequest error if id not specified", async () => {
+    //   const response = await request(app)
+    //     .delete(`${url}`)
+    //     .expect("Content-Type", /json/)
+    //     .expect(400);
+
+    //   expect(response.body).toEqual({
+    //     success: false,
+    //     error: idNotSpecifiedError,
+    //   });
+    // });
+
+    it("DELETE /categories/:id --> return 404 error if category not found", async () => {
+      const response = await request(app)
+        .delete(`${url}/4`)
+        .expect("Content-Type", /json/)
+        .expect(404);
+
+      expect(response.body).toEqual({
+        success: false,
+        error: {
+          status: 404,
+          type: "notFound",
+          message: "Record to delete does not exist.",
+        },
+      });
+    });
+
+    // it("DELETE /categories/:id --> return auth error if not admin", async() => {});
   });
 });
