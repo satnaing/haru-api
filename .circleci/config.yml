@@ -7,12 +7,37 @@ jobs:
   build-and-test:
     docker:
       - image: cimg/node:16.10
+      - image: postgres:14rc1-alpine
+        environment:
+          POSTGRES_USER: prisma
+          POSTGRES_PASSWORD: prisma
+          POSTGRES_DB: tests
+    environment:
+      DATABASE_URL: "postgresql://prisma:prisma@localhost:5432/tests"
     steps:
       - checkout
+      - run:
+          name: Waiting for Postgres to be ready
+          command: |
+            for i in `seq 1 10`;
+            do
+              nc -z localhost 5432 && echo Success && exit 0
+              echo -n .
+              sleep 1
+            done
+            echo Failed waiting for Postgress && exit 1
+      - setup_remote_docker
+      - run:
+          name: Install Docker Compose
+          command: |
+            curl -L https://github.com/docker/compose/releases/download/1.11.2/docker-compose-`uname -s`-`uname -m` > ~/docker-compose
+            chmod +x ~/docker-compose
+            sudo mv ~/docker-compose /usr/local/bin/docker-compose
       - node/install-packages:
           pkg-manager: npm
       - restore_cache:
-          keys: node-deps-v1-{{ .Branch }}-{{ checksum "package-lock.json" }}
+          keys:
+            - node-deps-v1-{{ .Branch }}-{{ checksum "package-lock.json" }}
       - run:
           name: Install Dependencies
           command: npm ci
@@ -21,8 +46,20 @@ jobs:
           paths:
             - node_modules
       - run:
-          name: Run tests
-          command: npm run test
+          name: Up docker test container
+          command: docker-compose -f docker-compose.test.yml up -d
+      - run:
+          name: Wait for db
+          command: dockerize -wait tcp://localhost:5432 -timeout 1m
+      - run:
+          name: Run migration
+          command: npx prisma migrate dev --name postgres-init
+      - run:
+          name: Seed database
+          command: npx prisma db seed
+      - run:
+          name: Run test with Jest
+          command: npm run test:circle
 
 workflows:
   main-workflow:
