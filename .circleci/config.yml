@@ -13,7 +13,7 @@ jobs:
           POSTGRES_PASSWORD: prisma
           POSTGRES_DB: tests
     environment:
-      DATABASE_URL: "postgresql://prisma:prisma@localhost:5437/tests"
+      DATABASE_URL: "postgresql://prisma:prisma@localhost:5432/tests"
     steps:
       - checkout
       - run:
