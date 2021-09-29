@@ -4,7 +4,7 @@ orbs:
   node: circleci/node@4.7
 
 jobs:
-  unit-tests-and-integration-tests:
+  build-and-test:
     docker:
       - image: cimg/node:16.10
       - image: postgres:14rc1-alpine
@@ -51,5 +51,5 @@ jobs:
 workflows:
   main-workflow:
     jobs:
-      - unit-test-and-integration-test
+      - build-and-test
       # - node/test
