@@ -10,19 +10,19 @@ jobs:
     steps:
       - checkout
       - node/install-packages:
-        pkg-manager: npm
+          pkg-manager: npm
       - restore_cache:
-        keys: node-deps-v1-{{ .Branch }}-{{ checksum "package-lock.json" }}
+          keys: node-deps-v1-{{ .Branch }}-{{ checksum "package-lock.json" }}
       - run:
-        name: Install Dependencies
-        command: npm ci
+          name: Install Dependencies
+          command: npm ci
       - save_cache:
-        key: node-deps-v1-{{ .Branch }}-{{ checksum "package-lock.json" }}
-        paths:
-          - node_modules
+          key: node-deps-v1-{{ .Branch }}-{{ checksum "package-lock.json" }}
+          paths:
+            - node_modules
       - run:
-        name: Run tests
-        command: npm run test
+          name: Run tests
+          command: npm run test
 
 workflows:
   main-workflow:
