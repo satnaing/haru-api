@@ -29,7 +29,7 @@ model Admin {
 
 model Category {
   id              Int     @id @default(autoincrement())
-  name            String     @db.VarChar(50)
+  name            String     @db.VarChar(50) @unique
   description     String?    @db.VarChar(255)
   thumbnailImage  String?    @db.VarChar(100) @map("thumbnail_image")
   createdAt       DateTime  @default(now()) @map("created_at")

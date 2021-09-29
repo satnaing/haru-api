@@ -66,3 +66,8 @@ export const getCategory = asyncHandler(async (req, res, next) => {
     data: category,
   });
 });
+
+// @desc    Create a new category
+// @route   POST /api/v1/categories
+// @access  Private (admin)
+// export const

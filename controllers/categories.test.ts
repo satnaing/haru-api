@@ -96,4 +96,25 @@ describe("Categories Controller", () => {
       });
     });
   });
+
+  describe("Create Category", () => {
+    it("POST /categories --> create a new category", async () => {
+      const response = await request(app).post(url);
+
+      const uriRegEx = /^([^:]*):([^:]*):(.*)\/categories\/4$/;
+      expect("http://localhost:5000/api/v1/categories/4").toMatch(uriRegEx);
+      // .expect("Content-Type", /json/)
+      // .expect(201);
+
+      // expect(response.body).toEqual({
+      //   success: true,
+      //   location: expect.any(String),
+      //   data: {}
+      //   // location: `${req.protocol}://${req.get("host")}
+      //   // /api/v1/resetpassword/${resetToken}`;
+      // })
+    });
+
+    it("POST /categories --> return error if name already exists", () => {});
+  });
 });
