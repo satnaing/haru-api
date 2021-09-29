@@ -24,13 +24,13 @@ jobs:
               sleep 1
             done
             echo Failed waiting for Postgress && exit 1
+      - setup_remote_docker
       - run:
           name: Install Docker Compose
           command: |
             set -x
             sudo curl -L https://github.com/docker/compose/releases/download/1.11.2/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
             sudo chmod +x /usr/local/bin/docker-compose
-      - setup_remote_docker
       - node/install-packages:
           pkg-manager: npm
       - restore_cache:
