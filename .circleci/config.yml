@@ -12,6 +12,8 @@ jobs:
           POSTGRES_USER: prisma
           POSTGRES_PASSWORD: prisma
           POSTGRES_DB: tests
+    environment:
+      DATABASE_URL: "postgresql://prisma:prisma@localhost:5437/tests"
     steps:
       - checkout
       - run:
@@ -45,8 +47,17 @@ jobs:
           paths:
             - node_modules
       - run:
-          name: Run tests
+          name: Up docker test container
           command: docker-compose -f docker-compose.test.yml up -d
+      - run:
+          name: Run migration
+          command: npx prisma migrate dev --name postgres-init
+      - run:
+          name: Seed database
+          command: npx prisma db seed
+      - run:
+          name: Run test with Jest
+          command: jest
 
 workflows:
   main-workflow:
