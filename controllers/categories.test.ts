@@ -21,6 +21,7 @@ describe("Categories Controller", () => {
       expect(response.body.data).toBeDefined;
       expect(response.body).toEqual({
         success: true,
+        count: expect.any(Number),
         data: expect.arrayContaining([
           expect.objectContaining({
             id: expect.any(Number),
@@ -41,6 +42,7 @@ describe("Categories Controller", () => {
 
       expect(response.body).toEqual({
         success: true,
+        count: expect.any(Number),
         data: expect.arrayContaining([
           {
             name: expect.any(String),

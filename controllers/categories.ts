@@ -1,11 +1,7 @@
 import prisma from "../prisma/client";
 import asyncHandler from "../middlewares/asyncHandler";
 import ErrorResponse from "../utils/errorResponse";
-import {
-  errorTypes,
-  idNotSpecifiedError,
-  resource404Error,
-} from "../utils/errorObject";
+import { errorTypes, resource404Error } from "../utils/errorObject";
 import { orderedQuery, selectedQuery } from "../utils/queryFilters";
 import { Prisma } from ".prisma/client";
 
@@ -40,7 +36,9 @@ export const getCategories = asyncHandler(async (req, res, next) => {
     orderBy,
   });
 
-  res.status(200).json({ success: true, data: categories });
+  res
+    .status(200)
+    .json({ success: true, count: categories.length, data: categories });
 });
 
 // @desc    Get specific category

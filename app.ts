@@ -4,6 +4,7 @@ import errorHandler from "./middlewares/errorHandler";
 
 // import routes
 import categories from "./routers/categories";
+import products from "./routers/products";
 
 const app = express();
 
@@ -12,6 +13,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/v1/categories", categories);
+app.use("/api/v1/products", products);
 
 app.use(errorHandler);
 
