@@ -16,6 +16,7 @@ jobs:
       DATABASE_URL: "postgresql://prisma:prisma@localhost:5432/tests"
     steps:
       - checkout
+      - setup_remote_docker
       - run:
           name: Install Docker Compose
           command: |
