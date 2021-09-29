@@ -49,6 +49,16 @@ jobs:
           name: Up docker test container
           command: docker-compose -f docker-compose.test.yml up -d
       - run:
+          name: Wait for postgres to get ready
+          command: |
+            for i in `seq 1 10`;
+            do
+              nc -z localhost 5437 && echo Success && exit 0
+              echo -n .
+              sleep 1
+            done
+            echo Failed waiting for Postgress && exit 1
+      - run:
           name: Run migration
           command: npx prisma migrate dev --name postgres-init
       - run:
