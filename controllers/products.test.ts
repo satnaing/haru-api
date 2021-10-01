@@ -69,6 +69,39 @@ describe("Product Controler", () => {
       expect(response.body.data).toBeSortedBy("name");
     });
 
+    // Pagination skip & take
+    it("GET /products --> pagination | skip 40, limit 10", async () => {
+      const response = await request(app)
+        .get(url)
+        .query({ limit: 10, offset: 50 })
+        .expect("Content-Type", /json/)
+        .expect(200);
+
+      expect(response.body.success).toBeTruthy();
+      expect(response.body.count).toEqual(expect.any(Number));
+      expect(response.body.data.length).toBe(10);
+      expect(response.body.data).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ id: 51 }),
+          expect.objectContaining({ id: 60 }),
+        ])
+      );
+    });
+
+    // Stock equals gt lte
+    it("GET /products --> stocks gte 50", async () => {});
+
+    // Price equals gt lte
+    it("GET /products --> price gte 50 & lt 100", async () => {
+      const response = await request(app)
+        .get(url)
+        .query({ price: ["gte:50", "lt:100"] })
+        .expect("Content-Type", /json/)
+        .expect(200);
+    });
+
+    // Select Specific product including its related category
+
     it("GET /products/:id --> return specific product", async () => {});
 
     it("GET /products/:id --> 404 if not found", async () => {});

@@ -7,12 +7,17 @@ import { Prisma } from ".prisma/client";
 // @route   GET /api/v1/categories
 // @access  Public
 export const getProducts = asyncHandler(async (req, res, next) => {
-  let querySelect = req.query.select;
-  let queryOrderBy = req.query.order_by;
+  const querySelect = req.query.select;
+  const queryOrderBy = req.query.order_by;
+  const queryOffset = req.query.offset;
+  const queryLimit = req.query.limit;
+
   let select: Prisma.ProductSelect | undefined;
   let orderBy:
     | Prisma.Enumerable<Prisma.ProductOrderByWithRelationInput>
     | undefined;
+  let skip: number | undefined;
+  let take: number | undefined;
 
   if (querySelect) {
     select = selectedQuery(querySelect as string);
@@ -22,9 +27,19 @@ export const getProducts = asyncHandler(async (req, res, next) => {
     orderBy = orderedQuery(queryOrderBy as string);
   }
 
+  if (queryOffset) {
+    skip = parseInt(queryOffset as string);
+  }
+
+  if (queryLimit) {
+    take = parseInt(queryLimit as string);
+  }
+
   const products = await prisma.product.findMany({
     select,
     orderBy,
+    skip,
+    take,
     // include: { category: true },
   });
 
