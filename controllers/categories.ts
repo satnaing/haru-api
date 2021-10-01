@@ -27,7 +27,7 @@ export const getCategories = asyncHandler(async (req, res, next) => {
 
   // If order_by is sent along with request
   if (queryOrder) {
-    orderBy = orderedQuery(queryOrder as string, orderBy);
+    orderBy = orderedQuery(queryOrder as string);
   }
 
   // Find categories with Prisma Client

@@ -1,5 +1,6 @@
 import request from "supertest";
 import app from "../app";
+import "jest-sorted";
 
 const url = `/api/v1/products`;
 
@@ -11,6 +12,9 @@ describe("Product Controler", () => {
         .expect("Content-Type", /json/)
         .expect(200);
 
+      expect(response.body.count).not.toBeUndefined();
+      expect(response.body.success).toBeTruthy();
+      expect(response.body.success).toBe(true);
       expect(response.body).toEqual({
         success: true,
         count: expect.any(Number),
@@ -34,9 +38,39 @@ describe("Product Controler", () => {
       });
     });
 
-    it("GET /products --> select, price", async () => {});
-    it("GET /products --> order_by price.desc", async () => {});
+    it("GET /products --> select name, price", async () => {
+      const response = await request(app)
+        .get(url)
+        .query({ select: "name,price" })
+        .expect("Content-Type", /json/)
+        .expect(200);
+
+      expect(response.body.success).toBeTruthy();
+      expect(response.body.count).toEqual(expect.any(Number));
+      expect(response.body.data).toEqual(
+        expect.arrayContaining([
+          {
+            name: expect.any(String),
+            price: expect.any(String),
+          },
+        ])
+      );
+    });
+
+    it("GET /products --> order_by name", async () => {
+      const response = await request(app)
+        .get(url)
+        .query({ order_by: "name" })
+        .expect("Content-Type", /json/)
+        .expect(200);
+
+      expect(response.body.success).toBeTruthy();
+      expect(response.body.count).toEqual(expect.any(Number));
+      expect(response.body.data).toBeSortedBy("name");
+    });
+
     it("GET /products/:id --> return specific product", async () => {});
+
     it("GET /products/:id --> 404 if not found", async () => {});
   });
 });
