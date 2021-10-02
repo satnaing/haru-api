@@ -1,6 +1,7 @@
 import request from "supertest";
 import app from "../app";
 import "jest-sorted";
+import { errorTypes } from "../utils/errorObject";
 
 const url = `/api/v1/products`;
 
@@ -98,12 +99,83 @@ describe("Product Controler", () => {
         .query({ price: ["gte:50", "lt:100"] })
         .expect("Content-Type", /json/)
         .expect(200);
+
+      expect(response.body.success).toBeTruthy();
+      expect(response.body.count).toEqual(expect.any(Number));
+      for (let obj of response.body.data) {
+        expect(parseFloat(obj.price)).toBeGreaterThanOrEqual(50);
+        expect(parseFloat(obj.price)).toBeLessThan(100);
+      }
+    });
+
+    // Price greater than
+    it("GET /products --> price gt 50", async () => {
+      const response = await request(app)
+        .get(url)
+        .query({ price: "gt:50" })
+        .expect("Content-Type", /json/)
+        .expect(200);
+
+      expect(response.body.success).toBeTruthy();
+      expect(response.body.count).toEqual(expect.any(Number));
+      for (let obj of response.body.data) {
+        expect(parseFloat(obj.price)).toBeGreaterThan(50);
+      }
+    });
+
+    // Stock equals 58
+    it("GET /products --> stock equals 58", async () => {
+      const response = await request(app)
+        .get(url)
+        .query({ stock: "equals:58" })
+        .expect("Content-Type", /json/)
+        .expect(200);
+
+      expect(response.body.success).toBeTruthy();
+      expect(response.body.count).toEqual(expect.any(Number));
+      for (let obj of response.body.data) {
+        expect(parseFloat(obj.stock)).toEqual(58);
+      }
+    });
+
+    // Error if more stock or price param is more than 2
+    it("GET /products --> error price if same param > 2", async () => {
+      const response = await request(app)
+        .get(url)
+        .query({ price: ["gte:50", "lt:100", "gt:60"] })
+        .expect("Content-Type", /json/)
+        .expect(400);
+
+      expect(response.body.success).toBeFalsy();
+      expect(response.body.count).toBeUndefined();
+      expect(response.body.error).toEqual({
+        status: 400,
+        type: errorTypes.badRequest,
+        message: "same parameter cannot be more than 2",
+      });
+    });
+
+    // Error if more stock or stock param is more than 2
+    it("GET /products --> error stock if same param > 2", async () => {
+      const response = await request(app)
+        .get(url)
+        .query({ stock: ["gte:50", "lt:100", "gt:60"] })
+        .expect("Content-Type", /json/)
+        .expect(400);
+
+      expect(response.body.success).toBeFalsy();
+      expect(response.body.count).toBeUndefined();
+      expect(response.body.error).toEqual({
+        status: 400,
+        type: errorTypes.badRequest,
+        message: "same parameter cannot be more than 2",
+      });
     });
 
     // Select Specific product including its related category
 
-    it("GET /products/:id --> return specific product", async () => {});
+    // it("GET /products/:id --> return specific product", async () => {});
 
-    it("GET /products/:id --> 404 if not found", async () => {});
+    // it("GET /products/:id --> 404 if not found", async () => {});
   });
 });
