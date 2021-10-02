@@ -89,9 +89,6 @@ describe("Product Controler", () => {
       );
     });
 
-    // Stock equals gt lte
-    it("GET /products --> stocks gte 50", async () => {});
-
     // Price equals gt lte
     it("GET /products --> price gte 50 & lt 100", async () => {
       const response = await request(app)
@@ -138,7 +135,7 @@ describe("Product Controler", () => {
       }
     });
 
-    // Error if more stock or price param is more than 2
+    // Error if more stock or price param is more than twice
     it("GET /products --> error price if same param > 2", async () => {
       const response = await request(app)
         .get(url)
@@ -151,11 +148,11 @@ describe("Product Controler", () => {
       expect(response.body.error).toEqual({
         status: 400,
         type: errorTypes.badRequest,
-        message: "same parameter cannot be more than 2",
+        message: "same parameter cannot be more than twice",
       });
     });
 
-    // Error if more stock or stock param is more than 2
+    // Error if more stock or stock param is more than twice
     it("GET /products --> error stock if same param > 2", async () => {
       const response = await request(app)
         .get(url)
@@ -168,8 +165,25 @@ describe("Product Controler", () => {
       expect(response.body.error).toEqual({
         status: 400,
         type: errorTypes.badRequest,
-        message: "same parameter cannot be more than 2",
+        message: "same parameter cannot be more than twice",
       });
+    });
+
+    // Search Proucts
+    it("GET /products/search --> return searched items", async () => {
+      const response = await request(app)
+        .get(`${url}/search`)
+        .query({ q: "Aerified" })
+        .expect("Content-Type", /json/)
+        .expect(200);
+
+      expect(response.body.success).toBeTruthy();
+      expect(response.body.count).toEqual(1);
+      expect(response.body.data).toEqual([
+        expect.objectContaining({
+          name: "Aerified",
+        }),
+      ]);
     });
 
     // Select Specific product including its related category

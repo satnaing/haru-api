@@ -4,7 +4,7 @@ type OrderType = { [key: string]: string };
 type FilteredType = { [key: string]: number };
 
 export const selectedQuery = (query: string) =>
-  query.split(",").reduce((a, v) => ({ ...a, [v]: true }), {});
+  query.split(",").reduce((a, v) => ({ ...a, [v.trim()]: true }), {});
 
 export const orderedQuery = (query: string) => {
   let orderArray: OrderType[] = [];

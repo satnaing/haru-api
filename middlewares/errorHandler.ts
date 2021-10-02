@@ -6,7 +6,7 @@ const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
   let error = { ...err };
 
   // console.log("Error Handler get called");
-  // console.log(err);
+  // console.error(err);
 
   // Some error
   // if(err.name === "someError") {
