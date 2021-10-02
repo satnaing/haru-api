@@ -168,7 +168,7 @@ describe("Categories Controller", () => {
         success: false,
         error: {
           status: 400,
-          type: errorTypes.missingCategoryName,
+          type: errorTypes.missingField,
           message: "category name field is missing",
         },
       });

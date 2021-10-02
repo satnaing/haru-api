@@ -84,7 +84,7 @@ export const createCategory = asyncHandler(async (req, res, next) => {
   if (!queryName) {
     const noNameError = {
       status: 400,
-      type: errorTypes.missingCategoryName,
+      type: errorTypes.missingField,
       message: "category name field is missing",
     };
     return next(new ErrorResponse(noNameError, 400));

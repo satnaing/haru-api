@@ -1,6 +1,7 @@
 import prisma from "../prisma/client";
 import asyncHandler from "../middlewares/asyncHandler";
 import {
+  checkRequiredFields,
   filteredQty,
   orderedQuery,
   selectedQuery,
@@ -10,9 +11,14 @@ import ErrorResponse from "../utils/errorResponse";
 import {
   errObjType,
   errorTypes,
+  invalidArgDetail,
+  invalidArgError,
   invalidQuery,
+  missingField,
+  MissingType,
   resource404Error,
 } from "../utils/errorObject";
+import { NextFunction } from "express";
 
 // @desc    Get all products
 // @route   GET /api/v1/categories
@@ -179,6 +185,61 @@ export const getProduct = asyncHandler(async (req, res, next) => {
   }
 
   res.status(200).json({
+    success: true,
+    data: product,
+  });
+});
+
+// @desc    Create New Product
+// @route   POST /api/v1/categories
+// @access  Private
+export const createProduct = asyncHandler(async (req, res, next) => {
+  type RequiredFieldsType = {
+    name: string | undefined;
+    price: string | undefined;
+    description: string | undefined;
+    image1: string | undefined;
+    image2: string | undefined;
+  };
+
+  let {
+    name,
+    price,
+    description,
+    image1,
+    image2,
+    discountPercent, // null
+    detail, // null
+    categoryId, // null
+    stock, // null
+  } = req.body;
+
+  const requiredFields: RequiredFieldsType = {
+    name,
+    price,
+    description,
+    image1,
+    image2,
+  };
+
+  const hasError = checkRequiredFields(requiredFields, next);
+  if (hasError !== false) return hasError;
+
+  const product = await prisma.product.create({
+    data: {
+      name,
+      price,
+      discountPercent,
+      description,
+      detail,
+      categoryId, // validation needs
+      image1,
+      image2,
+      stock,
+    },
+  });
+
+  res.status(201).json({
     success: true,
     data: product,
   });

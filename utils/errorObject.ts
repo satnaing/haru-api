@@ -10,8 +10,9 @@ export const errorTypes = {
   badRequest: "badRequest",
   internalError: "internalError",
   alreadyExists: "alreadyExists",
-  missingCategoryName: "missingCategoryName",
+  missingField: "missingField",
   invalidQuery: "invalidQuery",
+  invalidArgument: "invalidArgument",
 };
 
 const errorObj = (
@@ -55,6 +56,44 @@ export const invalidQuery = errorObj(
   errorTypes.invalidQuery,
   "one or more url query is invalid"
 );
+
+// {
+//   "success": false,
+//   "error": {
+//     "status": 400,
+//     "type": "invalidArgument",
+//     "message": "invalid argument",
+//     "detail": [
+//       {
+//         "code": "missingName",
+//         "message": "name field is missing"
+//       }
+//     ]
+//   }
+// }
+
+export type MissingType = {
+  code: string;
+  message: string;
+};
+
+export const invalidArgDetail = (str: string) => {
+  return {
+    code: `missing${str.charAt(0).toUpperCase()}${str.slice(1)}`,
+    message: `${str} field is missing`,
+  };
+};
+
+export const invalidArgError = (detail: MissingType[]) =>
+  errorObj(
+    400,
+    errorTypes.invalidArgument,
+    "invalid one or more argument(s)",
+    detail
+  );
+
+export const missingField = (field: string) =>
+  errorObj(400, errorTypes.missingField, `${field} field is missing`);
 
 export default errorObj;
 

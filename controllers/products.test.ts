@@ -4,6 +4,7 @@ import "jest-sorted";
 import {
   errorTypes,
   invalidQuery,
+  missingField,
   resource404Error,
 } from "../utils/errorObject";
 
@@ -241,6 +242,80 @@ describe("Product Controler", () => {
 
       expect(response.body.success).toBe(false);
       expect(response.body.error).toEqual(invalidQuery);
+    });
+  });
+
+  describe("Create Product", () => {
+    it("GET /products --> create a new product", async () => {
+      const newProduct = {
+        name: "test product",
+        price: "500",
+        description: "this is test product",
+        detail: "this is product detail. Just a testing",
+        categoryId: 3,
+        image1: "imageurl.com/png",
+        image2: "imageur2.com/png",
+        stock: 10,
+      };
+      const response = await request(app)
+        .post(url)
+        .send(newProduct)
+        .expect("Content-Type", /json/)
+        .expect(201);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toEqual({
+        id: expect.any(Number),
+        name: expect.any(String),
+        price: expect.any(String),
+        discountPercent: expect.any(Number || null),
+        description: expect.any(String),
+        detail: expect.any(String || null),
+        categoryId: expect.any(Number),
+        // category: expect.any(Array),
+        image1: expect.any(String),
+        image2: expect.any(String),
+        stock: expect.any(Number),
+        createdAt: expect.any(String),
+        updatedAt: null,
+      });
+    });
+
+    it("GET /products --> throws error if required field is missing", async () => {
+      const response = await request(app)
+        .post(url)
+        .expect("Content-Type", /json/)
+        .expect(400);
+
+      expect(response.body.success).toBe(false);
+      // expect(response.body.error).toEqual(missingField("name"));
+      expect(response.body.error).toEqual({
+        status: 400,
+        type: "invalidArgument",
+        message: "invalid one or more argument(s)",
+        detail: [
+          {
+            code: "missingName",
+            message: "name field is missing",
+          },
+          {
+            code: "missingPrice",
+            message: "price field is missing",
+          },
+          {
+            code: "missingDescription",
+            message: "description field is missing",
+          },
+          {
+            code: "missingImage1",
+            message: "image1 field is missing",
+          },
+          {
+            code: "missingImage2",
+            message: "image2 field is missing",
+          },
+        ],
+      });
     });
   });
 });

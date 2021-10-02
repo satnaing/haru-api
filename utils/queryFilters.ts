@@ -1,4 +1,6 @@
 import { NextFunction } from "express";
+import { invalidArgDetail, invalidArgError, MissingType } from "./errorObject";
+import ErrorResponse from "./errorResponse";
 
 type OrderType = { [key: string]: string };
 type FilteredType = { [key: string]: number };
@@ -38,4 +40,21 @@ export const filteredQty = (query: string | string[]) => {
     filteredValue = [...filteredValue, obj2];
   }
   return filteredValue;
+};
+
+export const checkRequiredFields = (
+  requiredObj: { [key: string]: string | undefined },
+  next: NextFunction
+) => {
+  let errorArray: MissingType[] = [];
+  for (const field in requiredObj) {
+    if (!requiredObj[field]) {
+      errorArray = [...errorArray, invalidArgDetail(field)];
+    }
+  }
+  if (errorArray.length === 0) {
+    return false;
+  } else {
+    return next(new ErrorResponse(invalidArgError(errorArray), 400));
+  }
 };
