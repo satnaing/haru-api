@@ -7,7 +7,12 @@ import {
 } from "../utils/queryFilters";
 import { Prisma } from ".prisma/client";
 import ErrorResponse from "../utils/errorResponse";
-import { errObjType, errorTypes } from "../utils/errorObject";
+import {
+  errObjType,
+  errorTypes,
+  invalidQuery,
+  resource404Error,
+} from "../utils/errorObject";
 
 // @desc    Get all products
 // @route   GET /api/v1/categories
@@ -148,4 +153,33 @@ export const searchProducts = asyncHandler(async (req, res, next) => {
 // @desc    Get Specific Products
 // @route   GET /api/v1/categories
 // @access  Public
-export const getProduct = asyncHandler(async (req, res, next) => {});
+export const getProduct = asyncHandler(async (req, res, next) => {
+  const id = parseInt(req.params.id);
+  const queryInclude = req.query.include;
+  let include: Object | undefined;
+
+  if (queryInclude === "category") {
+    include = { category: true };
+  }
+
+  // return error if include is specified and
+  // include value is not "category"
+  if (queryInclude && queryInclude !== "category") {
+    return next(new ErrorResponse(invalidQuery, 400));
+  }
+
+  const product = await prisma.product.findUnique({
+    where: { id },
+    include,
+  });
+
+  // throws error if no product with that id found
+  if (!product) {
+    return next(new ErrorResponse(resource404Error, 404));
+  }
+
+  res.status(200).json({
+    success: true,
+    data: product,
+  });
+});

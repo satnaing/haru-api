@@ -11,6 +11,7 @@ export const errorTypes = {
   internalError: "internalError",
   alreadyExists: "alreadyExists",
   missingCategoryName: "missingCategoryName",
+  invalidQuery: "invalidQuery",
 };
 
 const errorObj = (
@@ -47,6 +48,12 @@ export const idNotSpecifiedError = errorObj(
   400,
   errorTypes.badRequest,
   "id not specified in the request"
+);
+
+export const invalidQuery = errorObj(
+  400,
+  errorTypes.invalidQuery,
+  "one or more url query is invalid"
 );
 
 export default errorObj;

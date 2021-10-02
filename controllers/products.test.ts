@@ -1,7 +1,11 @@
 import request from "supertest";
 import app from "../app";
 import "jest-sorted";
-import { errorTypes } from "../utils/errorObject";
+import {
+  errorTypes,
+  invalidQuery,
+  resource404Error,
+} from "../utils/errorObject";
 
 const url = `/api/v1/products`;
 
@@ -188,8 +192,55 @@ describe("Product Controler", () => {
 
     // Select Specific product including its related category
 
-    // it("GET /products/:id --> return specific product", async () => {});
+    // Get Specific product
+    it("GET /products/:id --> return specific product", async () => {
+      const response = await request(app)
+        .get(`${url}/5`)
+        .expect("Content-Type", /json/)
+        .expect(200);
 
-    // it("GET /products/:id --> 404 if not found", async () => {});
+      expect(response.body.success).toBeTruthy();
+      expect(response.body.data.id).toBe(5);
+    });
+
+    // 404 Error if product not found
+    it("GET /products/:id --> 404 Error if not found", async () => {
+      const response = await request(app)
+        .get(`${url}/999`)
+        .expect("Content-Type", /json/)
+        .expect(404);
+
+      expect(response.body.success).toBeFalsy();
+      expect(response.body.error).toEqual(resource404Error);
+    });
+
+    // include related categories
+    it("GET /products/:id --> include related category", async () => {
+      const response = await request(app)
+        .get(`${url}/5`)
+        .query({ include: "category" })
+        .expect("Content-Type", /json/)
+        .expect(200);
+
+      expect(response.body.success).toBeTruthy();
+      expect(response.body.data.category).toEqual(
+        expect.objectContaining({
+          id: expect.any(Number),
+          name: expect.any(String),
+        })
+      );
+    });
+
+    // error if include value is not "category"
+    it("GET /products/:id --> validation for include: 'category'", async () => {
+      const response = await request(app)
+        .get(`${url}/5`)
+        .query({ include: "categories" })
+        .expect("Content-Type", /json/)
+        .expect(400);
+
+      expect(response.body.success).toBe(false);
+      expect(response.body.error).toEqual(invalidQuery);
+    });
   });
 });
