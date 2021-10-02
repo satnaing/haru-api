@@ -2,7 +2,11 @@ import prisma from "../prisma/client";
 import asyncHandler from "../middlewares/asyncHandler";
 import ErrorResponse from "../utils/errorResponse";
 import { errorTypes, resource404Error } from "../utils/errorObject";
-import { orderedQuery, selectedQuery } from "../utils/queryFilters";
+import {
+  checkRequiredFields,
+  orderedQuery,
+  selectedQuery,
+} from "../utils/queryFilters";
 import { Prisma } from ".prisma/client";
 
 // @desc    Get all categories
@@ -80,18 +84,12 @@ export const createCategory = asyncHandler(async (req, res, next) => {
   const thumbnailImage: string | undefined = req.body.thumbnailImage;
   let name: string | undefined;
 
-  // Throws an error if name is not specified
-  if (!queryName) {
-    const noNameError = {
-      status: 400,
-      type: errorTypes.missingField,
-      message: "category name field is missing",
-    };
-    return next(new ErrorResponse(noNameError, 400));
-  }
+  // Throws an error if name field is not specified
+  const hasError = checkRequiredFields({ name: queryName }, next);
+  if (hasError !== false) return hasError;
 
   // Trim the name and change it to lower-case
-  name = queryName.trim().toLowerCase();
+  name = (queryName as string).trim().toLowerCase();
 
   // Create a category in prisma client
   const category = await prisma.category.create({
