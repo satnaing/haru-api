@@ -15,7 +15,7 @@ import errorObj, {
   invalidArgError,
   invalidQuery,
   missingField,
-  MissingType,
+  ErrorDetailType,
   resource404Error,
 } from "../utils/errorObject";
 import { NextFunction } from "express";
@@ -196,7 +196,7 @@ export const getProduct = asyncHandler(async (req, res, next) => {
 export const createProduct = asyncHandler(async (req, res, next) => {
   type RequiredFieldsType = {
     name: string | undefined;
-    price: string | undefined;
+    price: string | undefined; // validae only decimal
     description: string | undefined;
     image1: string | undefined;
     image2: string | undefined;
@@ -211,7 +211,7 @@ export const createProduct = asyncHandler(async (req, res, next) => {
     discountPercent, // null
     detail, // null
     categoryId, // null
-    stock, // null
+    stock, // null // validate only number
   } = req.body;
 
   const requiredFields: RequiredFieldsType = {
@@ -235,7 +235,13 @@ export const createProduct = asyncHandler(async (req, res, next) => {
       const invalidCategoryError = errorObj(
         400,
         errorTypes.invalidArgument,
-        "invalid category id"
+        "invalid category id",
+        [
+          {
+            code: "invalidCategory",
+            message: `there is no category with id ${categoryId}`,
+          },
+        ]
       );
       return next(new ErrorResponse(invalidCategoryError, 400));
     }

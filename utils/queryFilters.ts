@@ -1,5 +1,9 @@
 import { NextFunction } from "express";
-import { invalidArgDetail, invalidArgError, MissingType } from "./errorObject";
+import {
+  invalidArgDetail,
+  invalidArgError,
+  ErrorDetailType,
+} from "./errorObject";
 import ErrorResponse from "./errorResponse";
 
 type OrderType = { [key: string]: string };
@@ -46,7 +50,7 @@ export const checkRequiredFields = (
   requiredObj: { [key: string]: string | undefined },
   next: NextFunction
 ) => {
-  let errorArray: MissingType[] = [];
+  let errorArray: ErrorDetailType[] = [];
   for (const field in requiredObj) {
     if (!requiredObj[field]) {
       errorArray = [...errorArray, invalidArgDetail(field)];

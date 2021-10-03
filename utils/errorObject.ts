@@ -19,7 +19,7 @@ const errorObj = (
   status: number,
   type: string,
   message: string,
-  detail?: any[]
+  detail?: ErrorDetailType[]
 ) => ({
   status,
   type,
@@ -72,7 +72,7 @@ export const invalidQuery = errorObj(
 //   }
 // }
 
-export type MissingType = {
+export type ErrorDetailType = {
   code: string;
   message: string;
 };
@@ -84,7 +84,7 @@ export const invalidArgDetail = (str: string) => {
   };
 };
 
-export const invalidArgError = (detail: MissingType[]) =>
+export const invalidArgError = (detail: ErrorDetailType[]) =>
   errorObj(
     400,
     errorTypes.invalidArgument,
@@ -109,4 +109,38 @@ export default errorObj;
 //   type: "notFound",
 //   message: "Page Not Found",
 //   detail: []
+// }
+
+// "error": {
+//   "status": 400,
+//   "type": "invalidArgument",
+//   "message": "invalid category id"
+// }
+
+// "error": {
+//   "status": 400,
+//   "type": "invalidArgument",
+//   "message": "invalid one or more argument(s)",
+//   "detail": [
+//       {
+//           "code": "missingName",
+//           "message": "name field is missing"
+//       },
+//       {
+//           "code": "missingPrice",
+//           "message": "price field is missing"
+//       },
+//       {
+//           "code": "missingDescription",
+//           "message": "description field is missing"
+//       },
+//       {
+//           "code": "missingImage1",
+//           "message": "image1 field is missing"
+//       },
+//       {
+//           "code": "missingImage2",
+//           "message": "image2 field is missing"
+//       }
+//   ]
 // }

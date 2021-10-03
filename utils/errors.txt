@@ -1,0 +1,18 @@
+"error": {
+  "status": 400,
+  "type": "invalidArgument",
+  "message": "invalid category id"
+}
+
+"error": {
+  "status": 400,
+  "type": "invalidArgument",
+  "message": "invalid one or more argument(s)",
+  "detail": [
+      {
+          "code": "missingName",
+          "message": "name field is missing"
+      },
+      -----
+  ]
+}
