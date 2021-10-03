@@ -346,27 +346,84 @@ describe("Product Controler", () => {
       });
     });
 
-    // it("GET /products --> throws error if price field is invalid", async () => {
-    //   const reqBody = {
-    //     name: "Wallie",
-    //     price: "some string",
-    //     description: "this is just a description",
-    //     image1: "image1.png",
-    //     image2: "image2.png",
-    //     categoryId: 99,
-    //   };
-    //   const response = await request(app)
-    //     .post(url)
-    //     .send(reqBody)
-    //     .expect("Content-Type", /json/)
-    //     .expect(400);
+    it("GET /products --> throws error if price field is invalid", async () => {
+      const reqBody = {
+        name: "Wallie",
+        price: "some string",
+        description: "this is just a description",
+        image1: "image1.png",
+        image2: "image2.png",
+        categoryId: 2,
+      };
+      const response = await request(app)
+        .post(url)
+        .send(reqBody)
+        .expect("Content-Type", /json/)
+        .expect(400);
 
-    //   expect(response.body.success).toBe(false);
-    //   expect(response.body.error).toEqual({
-    //     status: 400,
-    //     type: errorTypes.invalidArgument,
-    //     message: "invalid category id",
-    //   });
-    // });
+      expect(response.body.success).toBe(false);
+      expect(response.body.error).toEqual({
+        status: 400,
+        type: errorTypes.invalidArgument,
+        message: "invalid price field",
+        detail: [
+          {
+            code: "invalidPrice",
+            message: `price field must only be number`,
+          },
+        ],
+      });
+    });
+
+    it("GET /products --> throws error if stock field is invalid", async () => {
+      const reqBody = {
+        name: "Wallie",
+        price: "300",
+        description: "this is just a description",
+        image1: "image1.png",
+        image2: "image2.png",
+        stock: "some string",
+        categoryId: 2,
+      };
+      const response = await request(app)
+        .post(url)
+        .send(reqBody)
+        .expect("Content-Type", /json/)
+        .expect(400);
+
+      expect(response.body.success).toBe(false);
+      expect(response.body.error).toEqual({
+        status: 400,
+        type: errorTypes.invalidArgument,
+        message: "invalid stock field",
+        detail: [
+          {
+            code: "invalidStock",
+            message: `stock field must only be integer`,
+          },
+        ],
+      });
+
+      const reqBody2 = { ...reqBody, stock: "23.22" };
+      console.log(reqBody2);
+      const response2 = await request(app)
+        .post(url)
+        .send(reqBody2)
+        .expect("Content-Type", /json/)
+        .expect(400);
+
+      expect(response2.body.success).toBe(false);
+      expect(response2.body.error).toEqual({
+        status: 400,
+        type: errorTypes.invalidArgument,
+        message: "invalid stock field",
+        detail: [
+          {
+            code: "invalidStock",
+            message: `stock field must only be integer`,
+          },
+        ],
+      });
+    });
   });
 });

@@ -226,6 +226,31 @@ export const createProduct = asyncHandler(async (req, res, next) => {
   const hasError = checkRequiredFields(requiredFields, next);
   if (hasError !== false) return hasError;
 
+  // Throws error if price field is not number
+  if (!parseFloat(price)) {
+    // int positive
+    const invalidPriceError = errorObj(
+      400,
+      errorTypes.invalidArgument,
+      "invalid price field",
+      [{ code: "invalidPrice", message: `price field must only be number` }]
+    );
+    return next(new ErrorResponse(invalidPriceError, 400));
+  }
+
+  const isInteger = (num: number) => Number(num) === num && num % 1 === 0;
+
+  // Throws error if stock field is not number
+  if (stock && !isInteger(stock)) {
+    const invalidStockError = errorObj(
+      400,
+      errorTypes.invalidArgument,
+      "invalid stock field",
+      [{ code: "invalidStock", message: `stock field must only be integer` }]
+    );
+    return next(new ErrorResponse(invalidStockError, 400));
+  }
+
   // Throws error if categoryId is invalid
   if (categoryId) {
     const category = await prisma.category.findUnique({
