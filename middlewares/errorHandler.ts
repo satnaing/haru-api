@@ -5,8 +5,10 @@ import ErrorResponse from "../utils/errorResponse";
 const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
   let error = { ...err };
 
-  // console.log("Error Handler get called");
-  // console.error(err);
+  if (process.env.NODE_ENV === "development") {
+    console.log("Error Handler get called");
+    console.error(err);
+  }
 
   // Some error
   // if(err.name === "someError") {

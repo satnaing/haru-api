@@ -8,7 +8,7 @@ import {
 } from "../utils/queryFilters";
 import { Prisma } from ".prisma/client";
 import ErrorResponse from "../utils/errorResponse";
-import {
+import errorObj, {
   errObjType,
   errorTypes,
   invalidArgDetail,
@@ -222,8 +222,24 @@ export const createProduct = asyncHandler(async (req, res, next) => {
     image2,
   };
 
+  // Throws error if required field is not specified
   const hasError = checkRequiredFields(requiredFields, next);
   if (hasError !== false) return hasError;
+
+  // Throws error if categoryId is invalid
+  if (categoryId) {
+    const category = await prisma.category.findUnique({
+      where: { id: parseInt(categoryId) },
+    });
+    if (!category) {
+      const invalidCategoryError = errorObj(
+        400,
+        errorTypes.invalidArgument,
+        "invalid category id"
+      );
+      return next(new ErrorResponse(invalidCategoryError, 400));
+    }
+  }
 
   const product = await prisma.product.create({
     data: {
@@ -232,7 +248,9 @@ export const createProduct = asyncHandler(async (req, res, next) => {
       discountPercent,
       description,
       detail,
-      categoryId, // validation needs
+      category: {
+        connect: { id: parseInt(categoryId) },
+      },
       image1,
       image2,
       stock,

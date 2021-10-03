@@ -317,5 +317,28 @@ describe("Product Controler", () => {
         ],
       });
     });
+
+    it("GET /products --> throws error if categoryId is invalid", async () => {
+      const reqBody = {
+        name: "Wallie",
+        price: "1500",
+        description: "this is just a description",
+        image1: "image1.png",
+        image2: "image2.png",
+        categoryId: 99,
+      };
+      const response = await request(app)
+        .post(url)
+        .send(reqBody)
+        .expect("Content-Type", /json/)
+        .expect(400);
+
+      expect(response.body.success).toBe(false);
+      expect(response.body.error).toEqual({
+        status: 400,
+        type: errorTypes.invalidArgument,
+        message: "invalid category id",
+      });
+    });
   });
 });
