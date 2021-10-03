@@ -193,7 +193,7 @@ export const getProduct = asyncHandler(async (req, res, next) => {
 export const createProduct = asyncHandler(async (req, res, next) => {
   type RequiredFieldsType = {
     name: string | undefined;
-    price: string | undefined; // validae only decimal
+    price: string | undefined;
     description: string | undefined;
     image1: string | undefined;
     image2: string | undefined;
@@ -205,10 +205,10 @@ export const createProduct = asyncHandler(async (req, res, next) => {
     description,
     image1,
     image2,
-    discountPercent, // null
-    detail, // null
-    categoryId, // null
-    stock, // null // validate only number
+    discountPercent,
+    detail,
+    categoryId,
+    stock,
   } = req.body;
 
   const requiredFields: RequiredFieldsType = {
@@ -243,8 +243,14 @@ export const createProduct = asyncHandler(async (req, res, next) => {
     }
   }
 
+  // let id: any;
+  // if (process.env.NODE_ENV === "testing") {
+  //   id = parseInt(req.body.id);
+  // }
+
   const product = await prisma.product.create({
     data: {
+      // id, // only for testing
       name,
       price,
       discountPercent,
@@ -326,6 +332,22 @@ export const updateProduct = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: product,
+  });
+});
+
+// @desc    Delete a Product
+// @route   DELETE /api/v1/categories:id
+// @access  Private
+export const deleteProduct = asyncHandler(async (req, res, next) => {
+  const id = parseInt(req.params.id);
+
+  await prisma.product.delete({
+    where: { id },
+  });
+
+  res.status(204).json({
+    success: true,
+    data: [],
   });
 });
 

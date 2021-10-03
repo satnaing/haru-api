@@ -6,6 +6,7 @@ import {
   invalidQuery,
   resource404Error,
 } from "../utils/errorObject";
+import prisma from "../prisma/client";
 
 const url = `/api/v1/products`;
 
@@ -399,7 +400,7 @@ describe("Product Controler", () => {
       stock: "20",
     };
 
-    it("PUT /products --> update a product", async () => {
+    it("PUT /products/:id --> should update a product", async () => {
       const response = await request(app)
         .put(`${url}/3`)
         .send(reqBody)
@@ -418,7 +419,7 @@ describe("Product Controler", () => {
       });
     });
 
-    it("PUT /products --> 404 if product not found", async () => {
+    it("PUT /products/:id --> 404 if product not found", async () => {
       const response = await request(app)
         .put(`${url}/9999`)
         .send(reqBody)
@@ -433,7 +434,7 @@ describe("Product Controler", () => {
       });
     });
 
-    it("PUT /products --> price should be positive float", async () => {
+    it("PUT /products/:id --> price should be positive float", async () => {
       const response = await request(app)
         .put(`${url}/3`)
         .send({ ...reqBody, price: "some string" })
@@ -451,7 +452,7 @@ describe("Product Controler", () => {
       expect(response2.body.error).toEqual(invalidPriceError);
     });
 
-    it("PUT /products --> stock should be positive integer", async () => {
+    it("PUT /products/:id --> stock should be positive integer", async () => {
       const response = await request(app)
         .put(`${url}/3`)
         .send({ ...reqBody, stock: "some string" })
@@ -471,7 +472,7 @@ describe("Product Controler", () => {
       expect(response2.body.error).toEqual(invalidStockError);
     });
 
-    it("PUT /products --> category id should be existing category", async () => {
+    it("PUT /products/:id --> category id should be existing category", async () => {
       const response = await request(app)
         .put(`${url}/3`)
         .send({ ...reqBody, categoryId: "999" })
@@ -480,6 +481,38 @@ describe("Product Controler", () => {
 
       expect(response.body.success).toBe(false);
       expect(response.body.error).toEqual(invalidCategoryIdError);
+    });
+  });
+
+  describe("Delete Product", () => {
+    it("DELETE /products/:id --> should delete a product", async () => {
+      const latestProduct = await prisma.product.findFirst({
+        select: {
+          id: true,
+        },
+        orderBy: {
+          id: "desc",
+        },
+      });
+      const response = await request(app)
+        .delete(`${url}/${latestProduct!.id}`)
+        .expect(204);
+
+      expect(response.status).toBe(204);
+    });
+
+    it("DELETE /products/:id --> should throw 404 if not found", async () => {
+      const response = await request(app)
+        .delete(`${url}/9999`)
+        .expect("Content-Type", /json/)
+        .expect(404);
+
+      expect(response.body.success).toBe(false);
+      expect(response.body.error).toEqual({
+        status: 404,
+        type: errorTypes.notFound,
+        message: "record to delete does not exist.",
+      });
     });
   });
 });
