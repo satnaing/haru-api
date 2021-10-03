@@ -125,3 +125,5 @@ export const deleteCategory = asyncHandler(async (req, res, next) => {
     data: [],
   });
 });
+
+// UPDATE CATEGORY

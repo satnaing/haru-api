@@ -245,7 +245,7 @@ describe("Product Controler", () => {
   });
 
   describe("Create Product", () => {
-    it("GET /products --> create a new product", async () => {
+    it("POST /products --> create a new product", async () => {
       const newProduct = {
         name: "test product",
         price: "500",
@@ -280,7 +280,7 @@ describe("Product Controler", () => {
       });
     });
 
-    it("GET /products --> throws error if required field is missing", async () => {
+    it("POST /products --> throws error if required field is missing", async () => {
       const response = await request(app)
         .post(url)
         .expect("Content-Type", /json/)
@@ -317,14 +317,14 @@ describe("Product Controler", () => {
       });
     });
 
-    it("GET /products --> throws error if categoryId is invalid", async () => {
+    it("POST /products --> throws error if categoryId is invalid", async () => {
       const reqBody = {
         name: "Wallie",
         price: "1500",
         description: "this is just a description",
         image1: "image1.png",
         image2: "image2.png",
-        categoryId: 99,
+        categoryId: "999",
       };
       const response = await request(app)
         .post(url)
@@ -333,27 +333,17 @@ describe("Product Controler", () => {
         .expect(400);
 
       expect(response.body.success).toBe(false);
-      expect(response.body.error).toEqual({
-        status: 400,
-        type: errorTypes.invalidArgument,
-        message: "invalid category id",
-        detail: [
-          {
-            code: "invalidCategory",
-            message: `there is no category with id 99`,
-          },
-        ],
-      });
+      expect(response.body.error).toEqual(invalidCategoryIdError);
     });
 
-    it("GET /products --> throws error if price field is invalid", async () => {
+    it("POST /products --> throws error if price field is invalid", async () => {
       const reqBody = {
         name: "Wallie",
         price: "some string",
         description: "this is just a description",
         image1: "image1.png",
         image2: "image2.png",
-        categoryId: 2,
+        categoryId: "2",
       };
       const response = await request(app)
         .post(url)
@@ -362,20 +352,10 @@ describe("Product Controler", () => {
         .expect(400);
 
       expect(response.body.success).toBe(false);
-      expect(response.body.error).toEqual({
-        status: 400,
-        type: errorTypes.invalidArgument,
-        message: "invalid price field",
-        detail: [
-          {
-            code: "invalidPrice",
-            message: `price field must only be number`,
-          },
-        ],
-      });
+      expect(response.body.error).toEqual(invalidPriceError);
     });
 
-    it("GET /products --> throws error if stock field is invalid", async () => {
+    it("POST /products --> throws error if stock field is invalid", async () => {
       const reqBody = {
         name: "Wallie",
         price: "300",
@@ -392,17 +372,7 @@ describe("Product Controler", () => {
         .expect(400);
 
       expect(response.body.success).toBe(false);
-      expect(response.body.error).toEqual({
-        status: 400,
-        type: errorTypes.invalidArgument,
-        message: "invalid stock field",
-        detail: [
-          {
-            code: "invalidStock",
-            message: `stock field must only be positive integer`,
-          },
-        ],
-      });
+      expect(response.body.error).toEqual(invalidStockError);
 
       const reqBody2 = { ...reqBody, stock: "23.22" };
       const response2 = await request(app)
@@ -412,17 +382,141 @@ describe("Product Controler", () => {
         .expect(400);
 
       expect(response2.body.success).toBe(false);
-      expect(response2.body.error).toEqual({
-        status: 400,
-        type: errorTypes.invalidArgument,
-        message: "invalid stock field",
-        detail: [
-          {
-            code: "invalidStock",
-            message: `stock field must only be positive integer`,
-          },
-        ],
+      expect(response2.body.error).toEqual(invalidStockError);
+    });
+  });
+
+  describe("Update Product", () => {
+    const reqBody = {
+      name: "updated category",
+      price: "100",
+      discountPercent: "5",
+      description: "this is updated description",
+      detail: "this is updated detail",
+      categoryId: "2",
+      image1: "image1.png",
+      image2: "image2.png",
+      stock: "20",
+    };
+
+    it("PUT /products --> update a product", async () => {
+      const response = await request(app)
+        .put(`${url}/3`)
+        .send(reqBody)
+        .expect("Content-Type", /json/)
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toEqual({
+        ...reqBody,
+        id: 3,
+        discountPercent: 5,
+        stock: 20,
+        categoryId: 2,
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String),
       });
+    });
+
+    it("PUT /products --> 404 if product not found", async () => {
+      const response = await request(app)
+        .put(`${url}/9999`)
+        .send(reqBody)
+        .expect("Content-Type", /json/)
+        .expect(404);
+
+      expect(response.body.success).toBe(false);
+      expect(response.body.error).toEqual({
+        status: 404,
+        type: errorTypes.notFound,
+        message: "record to update not found.",
+      });
+    });
+
+    it("PUT /products --> price should be positive float", async () => {
+      const response = await request(app)
+        .put(`${url}/3`)
+        .send({ ...reqBody, price: "some string" })
+        .expect("Content-Type", /json/)
+        .expect(400);
+      expect(response.body.success).toBe(false);
+      expect(response.body.error).toEqual(invalidPriceError);
+
+      const response2 = await request(app)
+        .put(`${url}/3`)
+        .send({ ...reqBody, price: "-100" })
+        .expect("Content-Type", /json/)
+        .expect(400);
+      expect(response2.body.success).toBe(false);
+      expect(response2.body.error).toEqual(invalidPriceError);
+    });
+
+    it("PUT /products --> stock should be positive integer", async () => {
+      const response = await request(app)
+        .put(`${url}/3`)
+        .send({ ...reqBody, stock: "some string" })
+        .expect("Content-Type", /json/)
+        .expect(400);
+
+      expect(response.body.success).toBe(false);
+      expect(response.body.error).toEqual(invalidStockError);
+
+      const response2 = await request(app)
+        .put(`${url}/3`)
+        .send({ ...reqBody, stock: "-100" })
+        .expect("Content-Type", /json/)
+        .expect(400);
+
+      expect(response2.body.success).toBe(false);
+      expect(response2.body.error).toEqual(invalidStockError);
+    });
+
+    it("PUT /products --> category id should be existing category", async () => {
+      const response = await request(app)
+        .put(`${url}/3`)
+        .send({ ...reqBody, categoryId: "999" })
+        .expect("Content-Type", /json/)
+        .expect(400);
+
+      expect(response.body.success).toBe(false);
+      expect(response.body.error).toEqual(invalidCategoryIdError);
     });
   });
 });
+
+/* ========================= Errors ============================ */
+const invalidStockError = {
+  status: 400,
+  type: errorTypes.invalidArgument,
+  message: "invalid stock field",
+  detail: [
+    {
+      code: "invalidStock",
+      message: `stock field must only be valid integer`,
+    },
+  ],
+};
+
+const invalidPriceError = {
+  status: 400,
+  type: errorTypes.invalidArgument,
+  message: "invalid price field",
+  detail: [
+    {
+      code: "invalidPrice",
+      message: `price field must only be valid number`,
+    },
+  ],
+};
+
+const invalidCategoryIdError = {
+  status: 400,
+  type: errorTypes.invalidArgument,
+  message: "invalid category id",
+  detail: [
+    {
+      code: "invalidCategory",
+      message: `there is no category with id 999`,
+    },
+  ],
+};

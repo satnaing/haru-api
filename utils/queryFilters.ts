@@ -62,3 +62,5 @@ export const checkRequiredFields = (
     return next(new ErrorResponse(invalidArgError(errorArray), 400));
   }
 };
+
+export const isIntegerAndPositive = (num: number) => num % 1 === 0 && num > 0;

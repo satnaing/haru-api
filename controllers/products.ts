@@ -3,6 +3,7 @@ import asyncHandler from "../middlewares/asyncHandler";
 import {
   checkRequiredFields,
   filteredQty,
+  isIntegerAndPositive,
   orderedQuery,
   selectedQuery,
 } from "../utils/queryFilters";
@@ -11,11 +12,7 @@ import ErrorResponse from "../utils/errorResponse";
 import errorObj, {
   errObjType,
   errorTypes,
-  invalidArgDetail,
-  invalidArgError,
   invalidQuery,
-  missingField,
-  ErrorDetailType,
   resource404Error,
 } from "../utils/errorObject";
 import { NextFunction } from "express";
@@ -226,35 +223,13 @@ export const createProduct = asyncHandler(async (req, res, next) => {
   const hasError = checkRequiredFields(requiredFields, next);
   if (hasError !== false) return hasError;
 
-  // Throws error if price field is not number
-  if (!parseFloat(price)) {
-    // int positive
-    const invalidPriceError = errorObj(
-      400,
-      errorTypes.invalidArgument,
-      "invalid price field",
-      [{ code: "invalidPrice", message: `price field must only be number` }]
-    );
+  // Throws error if price field is not number or negative number
+  if (!parseFloat(price) || parseFloat(price) < 0) {
     return next(new ErrorResponse(invalidPriceError, 400));
   }
 
-  const isIntegerAndPositive = (num: number) => num % 1 === 0 && num > 0;
-
-  console.log(isIntegerAndPositive(parseInt(stock)));
-
   // Throws error if stock field is not integer
   if (stock && !isIntegerAndPositive(stock)) {
-    const invalidStockError = errorObj(
-      400,
-      errorTypes.invalidArgument,
-      "invalid stock field",
-      [
-        {
-          code: "invalidStock",
-          message: `stock field must only be positive integer`,
-        },
-      ]
-    );
     return next(new ErrorResponse(invalidStockError, 400));
   }
 
@@ -264,18 +239,7 @@ export const createProduct = asyncHandler(async (req, res, next) => {
       where: { id: parseInt(categoryId) },
     });
     if (!category) {
-      const invalidCategoryError = errorObj(
-        400,
-        errorTypes.invalidArgument,
-        "invalid category id",
-        [
-          {
-            code: "invalidCategory",
-            message: `there is no category with id ${categoryId}`,
-          },
-        ]
-      );
-      return next(new ErrorResponse(invalidCategoryError, 400));
+      return next(new ErrorResponse(invalidCategoryError(categoryId), 400));
     }
   }
 
@@ -300,3 +264,100 @@ export const createProduct = asyncHandler(async (req, res, next) => {
     data: product,
   });
 });
+
+// @desc    Update a Product
+// @route   PUT /api/v1/categories/:id
+// @access  Private
+export const updateProduct = asyncHandler(async (req, res, next) => {
+  const id = parseInt(req.params.id);
+
+  const {
+    name,
+    price,
+    discountPercent,
+    description,
+    detail,
+    categoryId,
+    image1,
+    image2,
+    stock,
+  } = req.body;
+
+  // Throws error if price field is not number
+  if (!parseFloat(price) || parseFloat(price) < 0) {
+    return next(new ErrorResponse(invalidPriceError, 400));
+  }
+
+  // Throws error if stock field is not integer
+  if (stock && !isIntegerAndPositive(stock)) {
+    return next(new ErrorResponse(invalidStockError, 400));
+  }
+
+  // Throws error if categoryId is invalid
+  if (categoryId) {
+    const category = await prisma.category.findUnique({
+      where: { id: parseInt(categoryId) },
+    });
+    if (!category) {
+      return next(new ErrorResponse(invalidCategoryError(categoryId), 400));
+    }
+  }
+
+  const product = await prisma.product.update({
+    where: { id },
+    data: {
+      name,
+      price,
+      discountPercent: parseFloat(discountPercent),
+      description,
+      detail,
+      category: {
+        connect: {
+          id: parseInt(categoryId),
+        },
+      },
+      image1,
+      image2,
+      stock: parseInt(stock),
+      updatedAt: new Date().toISOString(),
+    },
+  });
+
+  res.status(200).json({
+    success: true,
+    data: product,
+  });
+});
+
+/*========================= Errors =============================*/
+const invalidPriceError = errorObj(
+  400,
+  errorTypes.invalidArgument,
+  "invalid price field",
+  [
+    {
+      code: "invalidPrice",
+      message: `price field must only be valid number`,
+    },
+  ]
+);
+
+const invalidStockError = errorObj(
+  400,
+  errorTypes.invalidArgument,
+  "invalid stock field",
+  [
+    {
+      code: "invalidStock",
+      message: `stock field must only be valid integer`,
+    },
+  ]
+);
+
+const invalidCategoryError = (categoryId: string) =>
+  errorObj(400, errorTypes.invalidArgument, "invalid category id", [
+    {
+      code: "invalidCategory",
+      message: `there is no category with id ${categoryId}`,
+    },
+  ]);
