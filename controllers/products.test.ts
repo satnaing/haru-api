@@ -399,7 +399,7 @@ describe("Product Controler", () => {
         detail: [
           {
             code: "invalidStock",
-            message: `stock field must only be integer`,
+            message: `stock field must only be positive integer`,
           },
         ],
       });
