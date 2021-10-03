@@ -238,15 +238,22 @@ export const createProduct = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse(invalidPriceError, 400));
   }
 
-  const isInteger = (num: number) => Number(num) === num && num % 1 === 0;
+  const isIntegerAndPositive = (num: number) => num % 1 === 0 && num > 0;
 
-  // Throws error if stock field is not number
-  if (stock && !isInteger(stock)) {
+  console.log(isIntegerAndPositive(parseInt(stock)));
+
+  // Throws error if stock field is not integer
+  if (stock && !isIntegerAndPositive(stock)) {
     const invalidStockError = errorObj(
       400,
       errorTypes.invalidArgument,
       "invalid stock field",
-      [{ code: "invalidStock", message: `stock field must only be integer` }]
+      [
+        {
+          code: "invalidStock",
+          message: `stock field must only be positive integer`,
+        },
+      ]
     );
     return next(new ErrorResponse(invalidStockError, 400));
   }
@@ -284,7 +291,7 @@ export const createProduct = asyncHandler(async (req, res, next) => {
       },
       image1,
       image2,
-      stock,
+      stock: parseInt(stock),
     },
   });
 

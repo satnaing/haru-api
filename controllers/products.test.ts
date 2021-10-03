@@ -254,7 +254,7 @@ describe("Product Controler", () => {
         categoryId: 3,
         image1: "imageurl.com/png",
         image2: "imageur2.com/png",
-        stock: 10,
+        stock: "10",
       };
       const response = await request(app)
         .post(url)
@@ -405,7 +405,6 @@ describe("Product Controler", () => {
       });
 
       const reqBody2 = { ...reqBody, stock: "23.22" };
-      console.log(reqBody2);
       const response2 = await request(app)
         .post(url)
         .send(reqBody2)
@@ -420,7 +419,7 @@ describe("Product Controler", () => {
         detail: [
           {
             code: "invalidStock",
-            message: `stock field must only be integer`,
+            message: `stock field must only be positive integer`,
           },
         ],
       });
