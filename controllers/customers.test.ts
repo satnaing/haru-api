@@ -2,6 +2,7 @@ import request from "supertest";
 import app from "../app";
 import "jest-extended";
 import { resource404Error } from "../utils/errorObject";
+import prisma from "../prisma/client";
 const url = "/api/v1/customers";
 
 describe("Customers", () => {
@@ -55,6 +56,37 @@ describe("Customers", () => {
 
       expect(response.body.success).toBe(false);
       expect(response.body.error).toEqual(resource404Error);
+    });
+  });
+
+  describe("Delete Customer", () => {
+    it("DELETE /customers/:id --> should delete a customer", async () => {
+      // create a customer to be deleted
+      const customer = await prisma.customer.create({
+        data: {
+          email: "testuser2@gmail.com",
+          fullname: "testuser",
+          password: "somerandompwd",
+          shippingAddress: "someaddr",
+          createdAt: new Date().toISOString(),
+        },
+      });
+      const response = await request(app)
+        .delete(`${url}/${customer.id}`)
+        .expect(204);
+    });
+
+    it("DELETE /customers/:id --> should return 404 if user not found", async () => {
+      const response = await request(app)
+        .delete(`${url}/9999`)
+        .expect("Content-Type", /json/)
+        .expect(404);
+
+      expect(response.body.success).toBe(false);
+      expect(response.body.error).toEqual({
+        ...resource404Error,
+        message: "record to delete does not exist.",
+      });
     });
   });
 });

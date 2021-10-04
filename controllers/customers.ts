@@ -56,3 +56,23 @@ export const getCustomer = asyncHandler(async (req, res, next) => {
     data: customer,
   });
 });
+
+// @desc    Delete Customer
+// @route   DEETE /api/v1/customers
+// @access  Private
+export const deleteCustomer = asyncHandler(async (req, res, next) => {
+  const id = parseInt(req.params.id);
+
+  const customer = await prisma.customer.delete({
+    where: { id },
+  });
+
+  if (!customer) {
+    return next(new ErrorResponse(resource404Error, 404));
+  }
+
+  res.status(204).json({
+    success: true,
+    data: [],
+  });
+});
