@@ -1,6 +1,7 @@
 import request from "supertest";
 import app from "../app";
 import "jest-extended";
+import { resource404Error } from "../utils/errorObject";
 const url = "/api/v1/customers";
 
 describe("Customers", () => {
@@ -26,6 +27,34 @@ describe("Customers", () => {
           },
         ])
       );
+    });
+
+    it("GET /customers/:id --> should return specific customer", async () => {
+      const response = await request(app)
+        .get(`${url}/3`)
+        .expect("Content-Type", /json/)
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toEqual({
+        id: expect.any(Number),
+        fullname: expect.any(String),
+        email: expect.any(String),
+        shippingAddress: expect.any(String),
+        phone: expect.toBeOneOf([expect.any(String), null]),
+        createdAt: expect.any(String),
+        updatedAt: expect.toBeOneOf([expect.any(String), null]),
+      });
+    });
+
+    it("GET /customers/:id --> should throw 404 if user not found", async () => {
+      const response = await request(app)
+        .get(`${url}/999`)
+        .expect("Content-Type", /json/)
+        .expect(404);
+
+      expect(response.body.success).toBe(false);
+      expect(response.body.error).toEqual(resource404Error);
     });
   });
 });
