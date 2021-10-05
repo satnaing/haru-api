@@ -1,3 +1,4 @@
+import jwt from "jsonwebtoken";
 import { NextFunction } from "express";
 import {
   invalidArgDetail,
@@ -46,6 +47,12 @@ export const filteredQty = (query: string | string[]) => {
   return filteredValue;
 };
 
+/**
+ * Documentation
+ * @param requiredObj
+ * @param next
+ * @returns false (hasError) || ErrorResponse
+ */
 export const checkRequiredFields = (
   requiredObj: { [key: string]: string | undefined },
   next: NextFunction
@@ -70,3 +77,14 @@ export const validateEmail = (email: string) => {
     /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
   return emailRegex.test(String(email).toLowerCase());
 };
+
+export const generateToken = (id: number, email: string) =>
+  jwt.sign(
+    {
+      iat: Math.floor(Date.now() / 1000) - 30,
+      id,
+      email,
+    },
+    process.env.JWT_SECRET as string,
+    { expiresIn: "1h" }
+  );

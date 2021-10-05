@@ -13,6 +13,7 @@ export const errorTypes = {
   missingField: "missingField",
   invalidQuery: "invalidQuery",
   invalidArgument: "invalidArgument",
+  unauthorized: "unauthorized",
 };
 
 const errorObj = (
@@ -31,6 +32,12 @@ export const defaultError = errorObj(
   500,
   errorTypes.internalError,
   "Internal Server Error"
+);
+
+export const unauthError = errorObj(
+  401,
+  errorTypes.unauthorized,
+  "email or password is incorrect"
 );
 
 export const page404Error = errorObj(
