@@ -6,7 +6,7 @@ import {
   isIntegerAndPositive,
   orderedQuery,
   selectedQuery,
-} from "../utils/queryFilters";
+} from "../utils/helperFunctions";
 import { Prisma } from ".prisma/client";
 import ErrorResponse from "../utils/errorResponse";
 import errorObj, {

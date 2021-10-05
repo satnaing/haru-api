@@ -1,7 +1,7 @@
 import asyncHandler from "../middlewares/asyncHandler";
 import prisma from "../prisma/client";
 import bcrypt from "bcrypt";
-import { checkRequiredFields } from "../utils/queryFilters";
+import { checkRequiredFields } from "../utils/helperFunctions";
 
 const saltRounds = 10;
 
