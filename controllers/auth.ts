@@ -73,12 +73,15 @@ export const loginCustomer = asyncHandler(async (req, res, next) => {
     where: { email },
   });
 
+  // Throws error if customer does not exist
   if (!customer) {
     return next(new ErrorResponse(unauthError, 401));
   }
 
+  // Check pwd with hashed pwd stored in db
   const result = await bcrypt.compare(password, customer.password);
 
+  // Throws error if password is incorrect
   if (!result) {
     return next(new ErrorResponse(unauthError, 401));
   }

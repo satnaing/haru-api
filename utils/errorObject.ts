@@ -40,6 +40,12 @@ export const unauthError = errorObj(
   "email or password is incorrect"
 );
 
+export const unauthAccess = errorObj(
+  401,
+  errorTypes.unauthorized,
+  "not authorized to access this route"
+);
+
 export const page404Error = errorObj(
   404,
   errorTypes.notFound,
