@@ -1,6 +1,7 @@
 import asyncHandler from "../middlewares/asyncHandler";
 import prisma from "../prisma/client";
 import bcrypt from "bcrypt";
+import { checkRequiredFields } from "../utils/queryFilters";
 
 const saltRounds = 10;
 
@@ -12,7 +13,12 @@ export const registerCustomer = asyncHandler(async (req, res, next) => {
   const fullname: string = req.body.fullname;
   let password: string = req.body.password;
   const shippingAddress: string = req.body.shippingAddress;
-  const phone: string = req.body.phone;
+  const phone: string = req.body.phone; // null
+
+  // Check required fields
+  const requiredFields = { email, fullname, password, shippingAddress };
+  const hasError = checkRequiredFields(requiredFields, next);
+  if (hasError !== false) return hasError;
 
   password = await bcrypt.hash(password, saltRounds);
 
