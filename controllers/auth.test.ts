@@ -2,6 +2,7 @@ import request from "supertest";
 import app from "../app";
 import "jest-extended";
 import prisma from "../prisma/client";
+import { errorTypes } from "../utils/errorObject";
 
 const url = "/api/v1/auth";
 
@@ -75,6 +76,21 @@ describe("Auth Controller", () => {
       status: 400,
       type: "alreadyExists",
       message: "email already exists",
+    });
+  });
+
+  it("POST /auth/register --> should validate email", async () => {
+    const response = await request(app)
+      .post(`${url}/register`)
+      .send({ ...newUser, email: "thisisnotavalidemailaddress" })
+      .expect("Content-Type", /json/)
+      .expect(400);
+
+    expect(response.body.success).toBe(false);
+    expect(response.body.error).toEqual({
+      status: 400,
+      type: errorTypes.invalidArgument,
+      message: "email is not valid",
     });
   });
 });

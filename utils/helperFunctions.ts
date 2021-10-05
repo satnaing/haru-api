@@ -64,3 +64,9 @@ export const checkRequiredFields = (
 };
 
 export const isIntegerAndPositive = (num: number) => num % 1 === 0 && num > 0;
+
+export const validateEmail = (email: string) => {
+  const emailRegex =
+    /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
+  return emailRegex.test(String(email).toLowerCase());
+};

@@ -1,7 +1,9 @@
 import asyncHandler from "../middlewares/asyncHandler";
 import prisma from "../prisma/client";
 import bcrypt from "bcrypt";
-import { checkRequiredFields } from "../utils/helperFunctions";
+import { checkRequiredFields, validateEmail } from "../utils/helperFunctions";
+import ErrorResponse from "../utils/errorResponse";
+import errorObj, { errorTypes } from "../utils/errorObject";
 
 const saltRounds = 10;
 
@@ -20,6 +22,17 @@ export const registerCustomer = asyncHandler(async (req, res, next) => {
   const hasError = checkRequiredFields(requiredFields, next);
   if (hasError !== false) return hasError;
 
+  // Validate email
+  if (!validateEmail(email)) {
+    const emailError = errorObj(
+      400,
+      errorTypes.invalidArgument,
+      "email is not valid"
+    );
+    return next(new ErrorResponse(emailError, 400));
+  }
+
+  // Hash password
   password = await bcrypt.hash(password, saltRounds);
 
   const customer = await prisma.customer.create({
