@@ -22,9 +22,9 @@ export const customers = [
     phone: "998-181-2642",
   },
   {
-    fullname: "Nil Disney",
-    email: "ndisney3@google.ru",
-    password: "MtP478Wyg",
+    fullname: "Mr.Demo",
+    email: "demo@gmail.com",
+    password: "$2b$10$1RVAMssajUDlT1ejrw13COnkppuj4BaidguYcIo3knI41cXi/lAcm",
     shippingAddress: "4 Anthes Circle",
     phone: null,
   },
