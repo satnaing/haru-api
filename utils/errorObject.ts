@@ -34,6 +34,12 @@ export const defaultError = errorObj(
   "Internal Server Error"
 );
 
+export const invalidEmail = errorObj(
+  400,
+  errorTypes.invalidArgument,
+  "email is not valid"
+);
+
 export const unauthError = errorObj(
   401,
   errorTypes.unauthorized,
@@ -69,21 +75,6 @@ export const invalidQuery = errorObj(
   errorTypes.invalidQuery,
   "one or more url query is invalid"
 );
-
-// {
-//   "success": false,
-//   "error": {
-//     "status": 400,
-//     "type": "invalidArgument",
-//     "message": "invalid argument",
-//     "detail": [
-//       {
-//         "code": "missingName",
-//         "message": "name field is missing"
-//       }
-//     ]
-//   }
-// }
 
 export type ErrorDetailType = {
   code: string;
