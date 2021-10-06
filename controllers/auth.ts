@@ -8,6 +8,7 @@ import {
 } from "../utils/helperFunctions";
 import ErrorResponse from "../utils/errorResponse";
 import errorObj, { errorTypes, unauthError } from "../utils/errorObject";
+import { ExtendedRequest } from "../utils/extendedRequest";
 
 const saltRounds = 10;
 
@@ -91,5 +92,26 @@ export const loginCustomer = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     token: token,
+  });
+});
+
+// @desc    Get Current Logged-in User
+// @route   GET /api/v1/auth/me
+// @access  Private
+export const getMe = asyncHandler(async (req: ExtendedRequest, res, next) => {
+  const user = await prisma.customer.findUnique({
+    where: { id: req!.user!.id },
+    select: {
+      id: true,
+      fullname: true,
+      email: true,
+      shippingAddress: true,
+      phone: true,
+    },
+  });
+
+  res.status(200).json({
+    success: true,
+    data: user,
   });
 });

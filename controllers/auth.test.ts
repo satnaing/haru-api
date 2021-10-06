@@ -2,7 +2,7 @@ import request from "supertest";
 import app from "../app";
 import "jest-extended";
 import prisma from "../prisma/client";
-import { errorTypes, unauthError } from "../utils/errorObject";
+import { errorTypes, unauthAccess, unauthError } from "../utils/errorObject";
 
 const url = "/api/v1/auth";
 
@@ -13,6 +13,8 @@ const newUser = {
   shippingAddress: "yangon",
   phone: "09283928",
 };
+
+let authToken: string;
 
 describe("Auth Controller", () => {
   describe("Regsiter Customer", () => {
@@ -106,6 +108,7 @@ describe("Auth Controller", () => {
 
       expect(response.body.success).toBe(true);
       expect(response.body.token).toBeString();
+      authToken = response.body.token;
     });
 
     it("POST /auth/login --> should throw error if required fields not include", async () => {
@@ -141,6 +144,35 @@ describe("Auth Controller", () => {
 
       expect(response.body.success).toBe(false);
       expect(response.body.error).toEqual(unauthError);
+    });
+  });
+
+  describe("Access Protected Route", () => {
+    it("GET /auth/me --> should require authentication", async () => {
+      const response = await request(app)
+        .get(`${url}/me`)
+        .expect("Content-Type", /json/)
+        .expect(401);
+
+      expect(response.body.success).toBe(false);
+      expect(response.body.error).toEqual(unauthAccess);
+    });
+
+    it("GET /auth/me --> should return logged in user", async () => {
+      const response = await request(app)
+        .get(`${url}/me`)
+        .set("Authorization", "Bearer " + authToken)
+        .expect("Content-Type", /json/)
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toEqual({
+        id: expect.any(Number),
+        fullname: expect.any(String),
+        email: expect.any(String),
+        shippingAddress: expect.any(String),
+        phone: expect.toBeOneOf([String, null]),
+      });
     });
   });
 });

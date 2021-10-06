@@ -78,6 +78,12 @@ export const validateEmail = (email: string) => {
   return emailRegex.test(String(email).toLowerCase());
 };
 
+/**
+ * Documentation
+ * @param id
+ * @param email
+ * @returns jwt
+ */
 export const generateToken = (id: number, email: string) =>
   jwt.sign(
     {
