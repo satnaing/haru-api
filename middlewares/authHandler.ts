@@ -5,6 +5,11 @@ import ErrorResponse from "../utils/errorResponse";
 import { ExtendedRequest } from "../utils/extendedRequest";
 import asyncHandler from "./asyncHandler";
 
+/**
+ * Middleware for protected routes
+ * @description used in routes before auth required controllers
+ * @return auth error | next()
+ */
 export const protect = asyncHandler(async (req: ExtendedRequest, res, next) => {
   let token: string = "";
   if (
