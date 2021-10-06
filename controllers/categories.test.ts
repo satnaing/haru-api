@@ -102,7 +102,7 @@ describe("Categories Controller", () => {
 
   describe("Create Category", () => {
     it("POST /categories --> create a new category", async () => {
-      const newUser = {
+      const testCategory = {
         id: 777,
         name: "sneakers",
         description: "sapien non mi integer ac neque duis bibendum morbi non",
@@ -111,19 +111,18 @@ describe("Categories Controller", () => {
 
       const response = await request(app)
         .post(url)
-        .send(newUser)
+        .send(testCategory)
         .expect("Content-Type", /json/)
         .expect(201);
 
       const uriRegEx = /^([^:]*):([^:]*):(.*)\/categories\/\d*$/;
 
       expect(response.body.location).toMatch(uriRegEx);
-
       expect(response.body).toEqual(
         expect.objectContaining({
           success: true,
           data: {
-            ...newUser,
+            ...testCategory,
             id: expect.any(Number),
             createdAt: expect.any(String),
             updatedAt: null,
@@ -133,13 +132,13 @@ describe("Categories Controller", () => {
     });
 
     it("POST /categories --> return error if name already exists", async () => {
-      const newUser = {
+      const testCategory = {
         name: "men",
         description: "sapien non mi integer",
       };
       const response = await request(app)
         .post(url)
-        .send(newUser)
+        .send(testCategory)
         .set("Accept", "application/json")
         .expect("Content-Type", /json/)
         .expect(400);
