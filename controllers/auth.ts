@@ -9,7 +9,10 @@ import {
   validateEmail,
 } from "../utils/helperFunctions";
 import ErrorResponse from "../utils/errorResponse";
-import errorObj, { errorTypes, unauthError } from "../utils/errorObject";
+import errorObj, {
+  errorTypes,
+  incorrectCredentialsError,
+} from "../utils/errorObject";
 import { ExtendedRequest } from "../utils/extendedRequest";
 
 // @desc    Register New Customer
@@ -76,7 +79,7 @@ export const loginCustomer = asyncHandler(async (req, res, next) => {
 
   // Throws error if customer does not exist
   if (!customer) {
-    return next(new ErrorResponse(unauthError, 401));
+    return next(new ErrorResponse(incorrectCredentialsError, 401));
   }
 
   // Check pwd with hashed pwd stored in db
@@ -84,7 +87,7 @@ export const loginCustomer = asyncHandler(async (req, res, next) => {
 
   // Throws error if password is incorrect
   if (!result) {
-    return next(new ErrorResponse(unauthError, 401));
+    return next(new ErrorResponse(incorrectCredentialsError, 401));
   }
 
   const token = generateToken(customer.id, customer.email);

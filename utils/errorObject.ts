@@ -14,6 +14,7 @@ export const errorTypes = {
   invalidQuery: "invalidQuery",
   invalidArgument: "invalidArgument",
   unauthorized: "unauthorized",
+  forbidden: "forbidden",
 };
 
 const errorObj = (
@@ -49,28 +50,29 @@ export const invalidEmail = errorObj(
 );
 
 /**
- * Unauthorized Login Error
+ * Incorrect Credentials Error
  * @description { 401, unauthorized, "email or password is incorrect" }
  */
-export const unauthError = errorObj(
+export const incorrectCredentialsError = errorObj(
   401,
   errorTypes.unauthorized,
   "email or password is incorrect"
 );
 
 /**
- * Unauthorized Access Error
- * @description { 401, unauthorized, "not authorized to access this route" }
+ * Auth Required Error
+ * @description { 401, unauthorized, "authentication required" }
  */
-export const unauthAccess = errorObj(
+//  unauthAccess
+export const authRequiredError = errorObj(
   401,
   errorTypes.unauthorized,
-  "not authorized to access this route"
+  "authentication required"
 );
 
 /**
  * 404 Page Not Found Error
- * @description { 404, notFound, "not authorized to access this route" }
+ * @description { 404, notFound, "page not found" }
  */
 export const page404Error = errorObj(
   404,

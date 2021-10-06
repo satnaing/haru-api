@@ -2,7 +2,11 @@ import request from "supertest";
 import app from "../app";
 import "jest-extended";
 import prisma from "../prisma/client";
-import { errorTypes, unauthAccess, unauthError } from "../utils/errorObject";
+import {
+  errorTypes,
+  authRequiredError,
+  incorrectCredentialsError,
+} from "../utils/errorObject";
 
 const url = "/api/v1/auth";
 
@@ -143,7 +147,7 @@ describe("Auth Controller", () => {
         .expect(401);
 
       expect(response.body.success).toBe(false);
-      expect(response.body.error).toEqual(unauthError);
+      expect(response.body.error).toEqual(incorrectCredentialsError);
     });
   });
 
@@ -155,7 +159,7 @@ describe("Auth Controller", () => {
         .expect(401);
 
       expect(response.body.success).toBe(false);
-      expect(response.body.error).toEqual(unauthAccess);
+      expect(response.body.error).toEqual(authRequiredError);
     });
 
     it("GET /auth/me --> should return logged in user", async () => {
