@@ -2,7 +2,7 @@ import request from "supertest";
 import "jest-extended";
 import app from "../app";
 import prisma from "../prisma/client";
-import { errorTypes, unauthError } from "../utils/errorObject";
+import { errorTypes, unauthAccess, unauthError } from "../utils/errorObject";
 
 const url = "/api/v1/admins";
 
@@ -18,6 +18,8 @@ const testAdmin: AdminType = {
   email: "testadmin5@gmail.com",
   password: "testadminpassword",
 };
+
+let authToken = "";
 
 describe("Admins", () => {
   describe("Create Admin", () => {
@@ -129,7 +131,7 @@ describe("Admins", () => {
 
       expect(response.body.success).toBe(true);
       expect(response.body.token).toBeString();
-      // authToken = response.body.token;
+      authToken = response.body.token;
     });
 
     it("POST /admins/login --> should throw error if required fields not include", async () => {
@@ -165,6 +167,34 @@ describe("Admins", () => {
 
       expect(response.body.success).toBe(false);
       expect(response.body.error).toEqual(unauthError);
+    });
+  });
+
+  describe("Access Protected Route", () => {
+    it("GET /admins/me --> should require authentication", async () => {
+      const response = await request(app)
+        .get(`${url}/me`)
+        .expect("Content-Type", /json/)
+        .expect(401);
+
+      expect(response.body.success).toBe(false);
+      expect(response.body.error).toEqual(unauthAccess);
+    });
+
+    it("GET /admins/me --> should return logged in user", async () => {
+      const response = await request(app)
+        .get(`${url}/me`)
+        .set("Authorization", "Bearer " + authToken)
+        .expect("Content-Type", /json/)
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toEqual({
+        id: expect.any(Number),
+        username: expect.any(String),
+        email: expect.any(String),
+        role: expect.toBeOneOf(["SUPERADMIN", "ADMIN", "MODERATOR"]),
+      });
     });
   });
 });

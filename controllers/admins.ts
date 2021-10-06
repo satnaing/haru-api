@@ -6,6 +6,7 @@ import errorObj, {
   unauthError,
 } from "../utils/errorObject";
 import ErrorResponse from "../utils/errorResponse";
+import { ExtendedRequest } from "../utils/extendedRequest";
 import {
   checkRequiredFields,
   comparePassword,
@@ -106,5 +107,25 @@ export const loginAdmin = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     token,
+  });
+});
+
+// @desc    Get Current Logged-in Admin
+// @route   GET /api/v1/admins/me
+// @access  Private
+export const getMe = asyncHandler(async (req: ExtendedRequest, res, next) => {
+  const user = await prisma.admin.findUnique({
+    where: { id: req!.user!.id },
+    select: {
+      id: true,
+      username: true,
+      email: true,
+      role: true,
+    },
+  });
+
+  res.status(200).json({
+    success: true,
+    data: user,
   });
 });
