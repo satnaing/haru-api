@@ -3,14 +3,14 @@ import asyncHandler from "../middlewares/asyncHandler";
 import prisma from "../prisma/client";
 import {
   checkRequiredFields,
+  comparePassword,
   generateToken,
+  hashPassword,
   validateEmail,
 } from "../utils/helperFunctions";
 import ErrorResponse from "../utils/errorResponse";
 import errorObj, { errorTypes, unauthError } from "../utils/errorObject";
 import { ExtendedRequest } from "../utils/extendedRequest";
-
-const saltRounds = 10;
 
 // @desc    Register New Customer
 // @route   POST /api/v1/auth/register
@@ -38,7 +38,7 @@ export const registerCustomer = asyncHandler(async (req, res, next) => {
   }
 
   // Hash password
-  password = await bcrypt.hash(password, saltRounds);
+  password = await hashPassword(password);
 
   const customer = await prisma.customer.create({
     data: {
@@ -80,7 +80,7 @@ export const loginCustomer = asyncHandler(async (req, res, next) => {
   }
 
   // Check pwd with hashed pwd stored in db
-  const result = await bcrypt.compare(password, customer.password);
+  const result = await comparePassword(password, customer.password);
 
   // Throws error if password is incorrect
   if (!result) {

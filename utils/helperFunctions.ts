@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 import { NextFunction } from "express";
 import {
   invalidArgDetail,
@@ -102,10 +103,25 @@ export const isIntegerAndPositive = (num: number) => num % 1 === 0 && num > 0;
  * @returns true | false
  */
 export const validateEmail = (email: string) => {
-  const emailRegex =
-    /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
+  const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
   return emailRegex.test(String(email).toLowerCase());
 };
+
+/**
+ * Hash plain text password
+ * @param password - plain password
+ * @returns hashed password (Promise)
+ */
+export const hashPassword = (password: string) => bcrypt.hash(password, 10);
+
+/**
+ * Compare input password with stored hashed password
+ * @param inputPassword - input password
+ * @param storedPassword - hashed password stored in db
+ * @returns true | false (Promise)
+ */
+export const comparePassword = (inputPwd: string, storedPwd: string) =>
+  bcrypt.compare(inputPwd, storedPwd);
 
 /**
  * Generate JsonWebToken
