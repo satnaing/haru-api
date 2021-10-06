@@ -28,48 +28,80 @@ const errorObj = (
   detail,
 });
 
+/**
+ * Internal Server Error
+ * @description { 500, internalError, "internal server error" }
+ */
 export const defaultError = errorObj(
   500,
   errorTypes.internalError,
-  "Internal Server Error"
+  "internal server error"
 );
 
+/**
+ * Invalid Email Error
+ * @description { 400, invalidArgument, "email is not valid" }
+ */
 export const invalidEmail = errorObj(
   400,
   errorTypes.invalidArgument,
   "email is not valid"
 );
 
+/**
+ * Unauthorized Login Error
+ * @description { 401, unauthorized, "email or password is incorrect" }
+ */
 export const unauthError = errorObj(
   401,
   errorTypes.unauthorized,
   "email or password is incorrect"
 );
 
+/**
+ * Unauthorized Access Error
+ * @description { 401, unauthorized, "not authorized to access this route" }
+ */
 export const unauthAccess = errorObj(
   401,
   errorTypes.unauthorized,
   "not authorized to access this route"
 );
 
+/**
+ * 404 Page Not Found Error
+ * @description { 404, notFound, "not authorized to access this route" }
+ */
 export const page404Error = errorObj(
   404,
   errorTypes.notFound,
   "page not found"
 );
 
+/**
+ * 404 Resource Not Found Error
+ * @description { 404, notFound, "resource not found" }
+ */
 export const resource404Error = errorObj(
   404,
   errorTypes.notFound,
   "resource not found"
 );
 
+/**
+ * ID Not Specified Error
+ * @description { 400, badRequest, "id not specified in the request" }
+ */
 export const idNotSpecifiedError = errorObj(
   400,
   errorTypes.badRequest,
   "id not specified in the request"
 );
 
+/**
+ * Invalid Query Error
+ * @description { 400, invalidQuery, "one or more url query is invalid" }
+ */
 export const invalidQuery = errorObj(
   400,
   errorTypes.invalidQuery,
@@ -81,6 +113,10 @@ export type ErrorDetailType = {
   message: string;
 };
 
+/**
+ * Invalid Argument Detail Error
+ * @return Object - { code: "missingSomething", message: "some field is missing"}
+ */
 export const invalidArgDetail = (str: string) => {
   return {
     code: `missing${str.charAt(0).toUpperCase()}${str.slice(1)}`,
@@ -88,6 +124,10 @@ export const invalidArgDetail = (str: string) => {
   };
 };
 
+/**
+ * Invalid Argument Error
+ * @return Object - { 400, invalidArgument, "invalid one or more argument(s)"}
+ */
 export const invalidArgError = (detail: ErrorDetailType[]) =>
   errorObj(
     400,
