@@ -1,3 +1,5 @@
+import { Role } from ".prisma/client";
+
 // Customer Data (10)
 export const customers = [
   {
@@ -700,6 +702,32 @@ export const customers = [
   //   shippingAddress: "88 Nova Drive",
   //   phone: "777-676-6234",
   // },
+];
+
+export const admins: {
+  username: string;
+  email: string;
+  password: string;
+  role: Role;
+}[] = [
+  {
+    username: "superadmin",
+    email: "superadmin@gmail.com",
+    password: "$2b$10$89O/57zd05yMYmkT4JJqhekHY7W0rtTVYpsrgohbZYcdOIouMFB2O",
+    role: "SUPERADMIN",
+  },
+  {
+    username: "admin",
+    email: "admin@gmail.com",
+    password: "$2b$10$4sLZXBrPa4Hm4Mde3OJ0GesAgyhhmglcpOfNCQ8K6/5GIJbAfbWMO",
+    role: "ADMIN",
+  },
+  {
+    username: "mod",
+    email: "mod@gmail.com",
+    password: "$2b$10$pDf2Qjhh2WilM8pN7r44zuodGA3zoFN/Zu8CCAI0pwQXkUR.okT/a",
+    role: "MODERATOR",
+  },
 ];
 
 // Category Data (3)
