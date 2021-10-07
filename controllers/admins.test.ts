@@ -279,10 +279,39 @@ describe("Admins", () => {
       });
 
       // delete admin after register and test
-      const deleteAdmin = await prisma.admin.delete({
+      // const deleteAdmin = await prisma.admin.delete({
+      //   where: { email: testAdmin.email },
+      // });
+      // expect(deleteAdmin).toBeDefined();
+    });
+  });
+
+  describe("Delete Admin", () => {
+    it("DELETE /admins/:id --> should delete admin", async () => {
+      const adminToDelete = await prisma.admin.findUnique({
         where: { email: testAdmin.email },
       });
-      expect(deleteAdmin).toBeDefined();
+
+      await request(app)
+        .delete(`${url}/${adminToDelete!.id}`)
+        .set("Authorization", "Bearer " + authToken)
+        .expect("Content-Type", /json/)
+        .expect(203);
+    });
+
+    it("DELETE /admins/:id --> should throw error if admin not found", async () => {
+      const response = await request(app)
+        .delete(`${url}/9999`)
+        .set("Authorization", "Bearer " + authToken)
+        .expect("Content-Type", /json/)
+        .expect(404);
+
+      expect(response.body.success).toBe(false);
+      expect(response.body.error).toEqual({
+        status: 404,
+        type: errorTypes.notFound,
+        message: "record to delete does not exist.",
+      });
     });
   });
 

@@ -221,3 +221,20 @@ export const updateAdminSelf = asyncHandler(
     });
   }
 );
+
+/**
+ * Delete user by id
+ * @route   DELETE /api/v1/admins/:id
+ * @access  Private (superadmin)
+ */
+export const deleteAdmin = asyncHandler(async (req, res, next) => {
+  const id = parseInt(req.params.id);
+
+  await prisma.admin.delete({
+    where: { id },
+  });
+
+  res.status(203).json({
+    success: true,
+  });
+});

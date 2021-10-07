@@ -2,6 +2,7 @@ import Router from "express";
 import {
   changePassword,
   createAdmin,
+  deleteAdmin,
   getMe,
   loginAdmin,
   updateAdminSelf,
@@ -16,5 +17,7 @@ router
   .get("/me", protectAdmin, getMe)
   .post("/login", loginAdmin)
   .post("/change-password", protectAdmin, changePassword);
+
+router.delete("/:id", protectAdmin, authorize("SUPERADMIN"), deleteAdmin);
 
 export default router;
