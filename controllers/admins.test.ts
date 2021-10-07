@@ -196,7 +196,7 @@ describe("Admins", () => {
   });
 
   describe("Update Admin", () => {
-    it("PUT /admins --> should update admin data", async () => {
+    it("PUT /admins --> should update admin data (self)", async () => {
       // login first
       const loginRresponse = await request(app)
         .post(`${url}/login`)
@@ -284,6 +284,54 @@ describe("Admins", () => {
       //   where: { email: testAdmin.email },
       // });
       // expect(deleteAdmin).toBeDefined();
+    });
+
+    it("PUT /admins/:id --> should update an admin (by superadmin)", async () => {
+      const admin = await prisma.admin.findUnique({
+        where: { email: testAdmin.email },
+      });
+
+      const reqBody = {
+        username: "updated name",
+        email: "updatedemail2@gmail.com",
+        password: "updatedpassword",
+        role: "MODERATOR",
+        active: false,
+      };
+
+      const response = await request(app)
+        .put(`${url}/${admin!.id}`)
+        .set("Authorization", "Bearer " + authToken)
+        .send(reqBody)
+        .expect("Content-Type", /json/)
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toEqual({
+        ...reqBody,
+        id: expect.any(Number),
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String),
+      });
+
+      // restore default for testAdmin
+      await request(app)
+        .put(`${url}/${admin!.id}`)
+        .set("Authorization", "Bearer " + authToken)
+        .send(testAdmin)
+        .expect("Content-Type", /json/)
+        .expect(200);
+    });
+
+    it("PUT /admins/:id --> should throw 404 Error if not found", async () => {
+      const response = await request(app)
+        .put(`${url}/999`)
+        .set("Authorization", "Bearer " + authToken)
+        .expect("Content-Type", /json/)
+        .expect(404);
+
+      expect(response.body.success).toBe(false);
+      expect(response.body.error).toEqual(resource404Error);
     });
   });
 

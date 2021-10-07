@@ -5,11 +5,13 @@ import errorObj, {
   invalidEmail,
   incorrectCredentialsError,
   resource404Error,
+  roleError,
 } from "../utils/errorObject";
 import ErrorResponse from "../utils/errorResponse";
 import { ExtendedRequest } from "../utils/extendedRequest";
 import {
   checkRequiredFields,
+  checkRole,
   comparePassword,
   generateToken,
   hashPassword,
@@ -40,20 +42,8 @@ export const createAdmin = asyncHandler(async (req, res, next) => {
   const hashedPassword = await hashPassword(password);
 
   // Check role is either SUPERADMIN, ADMIN or MODERATOR
-  const allowedRoles = ["SUPERADMIN", "ADMIN", "MODERATOR"];
-  if (role && !allowedRoles.includes(role)) {
-    const roleError = errorObj(
-      400,
-      errorTypes.invalidArgument,
-      "role type is not valid",
-      [
-        {
-          code: "invalidRole",
-          message: "role must be one of 'SUPERADMIN', 'ADMIN', and 'MODERATOR'",
-        },
-      ]
-    );
-    return next(new ErrorResponse(roleError, 400));
+  if (role !== undefined) {
+    if (!checkRole(role)) return next(new ErrorResponse(roleError, 400));
   }
 
   const admin = await prisma.admin.create({
@@ -274,6 +264,56 @@ export const getAdmin = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: admin,
+  });
+});
+
+/**
+ * Update specific admin
+ * @route   PUT /api/v1/admins/:id
+ * @access  Private (superadmin)
+ */
+export const updateAdmin = asyncHandler(async (req, res, next) => {
+  const id = parseInt(req.params.id);
+
+  const username = req.body.username;
+  const email = req.body.email;
+  const password = req.body.password;
+  const role = req.body.role;
+  const active = req.body.active;
+  let hashedPassword: string | undefined;
+
+  const adminFound = await prisma.admin.findUnique({
+    where: { id },
+  });
+
+  // Throws 404 error if admin not found
+  if (!adminFound) return next(new ErrorResponse(resource404Error, 404));
+
+  // Check role if it is valid
+  if (role !== undefined) {
+    if (!checkRole(role)) return next(new ErrorResponse(roleError, 400));
+  }
+
+  // Hash plain text password
+  if (password) {
+    hashedPassword = await hashPassword(password);
+  }
+
+  const admin = await prisma.admin.update({
+    where: { id },
+    data: {
+      username,
+      email,
+      password: hashedPassword,
+      role,
+      active,
+      updatedAt: new Date().toISOString(),
+    },
+  });
+
+  res.status(200).json({
+    success: true,
+    data: { ...admin, password },
   });
 });
 

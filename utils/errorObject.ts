@@ -70,6 +70,22 @@ export const incorrectCredentialsError = {
 };
 
 /**
+ * Role Error
+ * @description { 400, invalidArgument, "role type is not valid" }
+ */
+export const roleError = errorObj(
+  400,
+  errorTypes.invalidArgument,
+  "role type is not valid",
+  [
+    {
+      code: "invalidRole",
+      message: "role must be one of 'SUPERADMIN', 'ADMIN', and 'MODERATOR'",
+    },
+  ]
+);
+
+/**
  * Auth Required Error
  * @description { 401, unauthorized, "authentication required" }
  */

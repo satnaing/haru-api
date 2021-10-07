@@ -108,6 +108,31 @@ export const validateEmail = (email: string) => {
 };
 
 /**
+ * Check role
+ * @param role
+ * @returns true | false
+ */
+export const checkRole = (role: string) => {
+  const allowedRoles = ["SUPERADMIN", "ADMIN", "MODERATOR"];
+  return allowedRoles.includes(role) ? true : false;
+};
+// const allowedRoles = ["SUPERADMIN", "ADMIN", "MODERATOR"];
+// if (role && !allowedRoles.includes(role)) {
+//   const roleError = errorObj(
+//     400,
+//     errorTypes.invalidArgument,
+//     "role type is not valid",
+//     [
+//       {
+//         code: "invalidRole",
+//         message: "role must be one of 'SUPERADMIN', 'ADMIN', and 'MODERATOR'",
+//       },
+//     ]
+//   );
+//   return next(new ErrorResponse(roleError, 400));
+// }
+
+/**
  * Hash plain text password
  * @param password - plain password
  * @returns hashed password (Promise)
