@@ -1,7 +1,5 @@
-# Set the version of docker compose to use
 version: "3.0"
 
-# The containers that compose the project
 services:
   db:
     image: postgres:14rc1-alpine
