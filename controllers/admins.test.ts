@@ -20,7 +20,7 @@ type AdminType = {
 
 const testAdmin: AdminType = {
   username: "testadmin",
-  email: "testadmin14@gmail.com",
+  email: "testadmin15@gmail.com",
   password: "testadminpassword",
 };
 
@@ -88,12 +88,6 @@ describe("Admins", () => {
 
       expect(response.body.success).toBe(true);
       expect(response.body.data).toEqual(expect.objectContaining(testAdmin));
-
-      // delete admin after register and test
-      // const deleteAdmin = await prisma.admin.delete({
-      //   where: { email: testAdmin.email },
-      // });
-      // expect(deleteAdmin).toBeDefined();
     });
 
     it("POST /admins --> should throw error if not authorized", async () => {
@@ -201,6 +195,43 @@ describe("Admins", () => {
   });
 
   describe("Update Admin", () => {
+    it("PUT /admins --> should update admin data", async () => {
+      // login first
+      const loginRresponse = await request(app)
+        .post(`${url}/login`)
+        .send({ email: testAdmin.email, password: testAdmin.password })
+        .expect("Content-Type", /json/)
+        .expect(200);
+
+      const updateAdmin = {
+        username: "new admin name",
+        email: "newemail2@gmail.com",
+      };
+
+      const response = await request(app)
+        .put(url)
+        .set("Authorization", "Bearer " + loginRresponse.body.token)
+        .send(updateAdmin)
+        .expect("Content-Type", /json/)
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toEqual({
+        ...updateAdmin,
+        updatedAt: expect.any(String),
+      });
+
+      // Update to previous testAdmin again
+      const response2 = await request(app)
+        .put(url)
+        .set("Authorization", "Bearer " + loginRresponse.body.token)
+        .send({ username: testAdmin.username, email: testAdmin.email })
+        .expect("Content-Type", /json/)
+        .expect(200);
+
+      expect(response2.body.success).toBe(true);
+    });
+
     it("POST /admins/change-password --> should update password", async () => {
       // login first
       const loginRresponse = await request(app)

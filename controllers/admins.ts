@@ -185,3 +185,39 @@ export const changePassword = asyncHandler(
     });
   }
 );
+
+/**
+ * Update admin by current admin
+ * @route   PUT /api/v1/admins
+ * @access  Private
+ */
+export const updateAdminSelf = asyncHandler(
+  async (req: ExtendedRequest, res, next) => {
+    const username: string | undefined = req.body.username;
+    let email: string | undefined = req.body.email;
+
+    // Throws error if email is invalid
+    if (email && !validateEmail(email)) {
+      return next(new ErrorResponse(invalidEmail, 400));
+    }
+
+    const updatedAdmin = await prisma.admin.update({
+      where: { id: req!.admin!.id },
+      data: {
+        username,
+        email,
+        updatedAt: new Date().toISOString(),
+      },
+      select: {
+        username: true,
+        email: true,
+        updatedAt: true,
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      data: updatedAdmin,
+    });
+  }
+);
