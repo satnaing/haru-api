@@ -135,3 +135,45 @@ export const getMe = asyncHandler(async (req: ExtendedRequest, res, next) => {
     data: user,
   });
 });
+
+/**
+ * Change current logged-in admin password
+ * @route   POST /api/v1/admins/change-password
+ * @access  Private
+ */
+export const changePassword = asyncHandler(
+  async (req: ExtendedRequest, res, next) => {
+    const currentPassword = req.body.currentPassword;
+    const newPassword = req.body.newPassword;
+
+    const currentUserId = req!.admin!.id;
+
+    // Check required fields
+    const requiredFields = { currentPassword, newPassword };
+    const hasError = checkRequiredFields(requiredFields, next);
+    if (hasError !== false) return hasError;
+
+    // Check current password is correct
+    const correctPassword = await comparePassword(
+      currentPassword,
+      req!.admin!.password
+    );
+
+    // Throws error if current password is incorrect
+    if (!correctPassword)
+      return next(new ErrorResponse(incorrectCredentialsError, 401));
+
+    // Hash new password
+    const hashedPassword = await hashPassword(newPassword);
+
+    await prisma.admin.update({
+      where: { id: currentUserId },
+      data: { password: hashedPassword },
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "password has been updated",
+    });
+  }
+);

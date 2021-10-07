@@ -20,11 +20,12 @@ type AdminType = {
 
 const testAdmin: AdminType = {
   username: "testadmin",
-  email: "testadmin7@gmail.com",
+  email: "testadmin12@gmail.com",
   password: "testadminpassword",
 };
 
 let authToken = "";
+let createdAdminToken = "";
 
 describe("Admins", () => {
   describe("Login Admin", () => {
@@ -89,10 +90,10 @@ describe("Admins", () => {
       expect(response.body.data).toEqual(expect.objectContaining(testAdmin));
 
       // delete admin after register and test
-      const deleteAdmin = await prisma.admin.delete({
-        where: { email: testAdmin.email },
-      });
-      expect(deleteAdmin).toBeDefined();
+      // const deleteAdmin = await prisma.admin.delete({
+      //   where: { email: testAdmin.email },
+      // });
+      // expect(deleteAdmin).toBeDefined();
     });
 
     it("POST /admins --> should throw error if not authorized", async () => {
@@ -196,6 +197,58 @@ describe("Admins", () => {
           },
         ],
       });
+    });
+  });
+
+  describe("Update Admin", () => {
+    it("POST /admins/change-password --> should update password", async () => {
+      // login first
+      const loginRresponse = await request(app)
+        .post(`${url}/login`)
+        .send({ email: testAdmin.email, password: testAdmin.password })
+        .expect("Content-Type", /json/)
+        .expect(200);
+
+      const response = await request(app)
+        .post(`${url}/change-password`)
+        .set("Authorization", "Bearer " + loginRresponse.body.token)
+        .send({
+          currentPassword: testAdmin.password,
+          newPassword: "newpassword",
+        })
+        .expect("Content-Type", /json/)
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.message).toEqual("password has been updated");
+    });
+
+    it("POST /admins/change-password --> should return error if current password is incorrect", async () => {
+      // login first
+      const loginRresponse = await request(app)
+        .post(`${url}/login`)
+        .send({ email: testAdmin.email, password: "newpassword" })
+        .expect("Content-Type", /json/)
+        .expect(200);
+
+      const response = await request(app)
+        .post(`${url}/change-password`)
+        .set("Authorization", "Bearer " + loginRresponse.body.token)
+        .send({
+          currentPassword: "wrong password",
+          newPassword: "newpassword",
+        })
+        .expect("Content-Type", /json/)
+        .expect(401);
+
+      expect(response.body.success).toBe(false);
+      expect(response.body.error).toEqual(incorrectCredentialsError);
+
+      // delete admin after register and test
+      const deleteAdmin = await prisma.admin.delete({
+        where: { email: testAdmin.email },
+      });
+      expect(deleteAdmin).toBeDefined();
     });
   });
 
