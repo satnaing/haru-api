@@ -50,6 +50,16 @@ export const invalidEmail = errorObj(
 );
 
 /**
+ * Unauthorized Error
+ * @description { 403, forbidden, "not authorized" } *
+ */
+export const unauthorizedError = errorObj(
+  403,
+  errorTypes.forbidden,
+  "not authorized"
+);
+
+/**
  * Incorrect Credentials Error
  * @description { 401, unauthorized, "email or password is incorrect" }
  */

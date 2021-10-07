@@ -2,7 +2,12 @@ import request from "supertest";
 import "jest-extended";
 import app from "../app";
 import prisma from "../prisma/client";
-import { errorTypes, unauthAccess, unauthError } from "../utils/errorObject";
+import {
+  errorTypes,
+  authRequiredError,
+  incorrectCredentialsError,
+  unauthorizedError,
+} from "../utils/errorObject";
 
 const url = "/api/v1/admins";
 
@@ -15,112 +20,13 @@ type AdminType = {
 
 const testAdmin: AdminType = {
   username: "testadmin",
-  email: "testadmin5@gmail.com",
+  email: "testadmin7@gmail.com",
   password: "testadminpassword",
 };
 
 let authToken = "";
 
 describe("Admins", () => {
-  describe("Create Admin", () => {
-    it("POST /admins --> should create an admin", async () => {
-      const response = await request(app)
-        .post(url)
-        .send(testAdmin)
-        .expect("Content-Type", /json/)
-        .expect(201);
-
-      expect(response.body.success).toBe(true);
-      expect(response.body.data).toEqual(expect.objectContaining(testAdmin));
-
-      // delete admin after register and test
-      const deleteAdmin = await prisma.admin.delete({
-        where: { email: testAdmin.email },
-      });
-      expect(deleteAdmin).toBeDefined();
-    });
-
-    it("POST /admins --> should throw error if email already exists", async () => {
-      const response = await request(app)
-        .post(url)
-        .send({ ...testAdmin, email: "superadmin@gmail.com" })
-        .expect("Content-Type", /json/)
-        .expect(400);
-
-      expect(response.body.success).toBe(false);
-      expect(response.body.error).toEqual({
-        status: 400,
-        type: "alreadyExists",
-        message: "email already exists",
-      });
-    });
-
-    it("POST /admins --> throws error if required field is missing", async () => {
-      const response = await request(app)
-        .post(url)
-        .expect("Content-Type", /json/)
-        .expect(400);
-
-      expect(response.body.success).toBe(false);
-      expect(response.body.error).toEqual({
-        status: 400,
-        type: "invalidArgument",
-        message: "invalid one or more argument(s)",
-        detail: [
-          {
-            code: "missingUsername",
-            message: "username field is missing",
-          },
-          {
-            code: "missingEmail",
-            message: "email field is missing",
-          },
-          {
-            code: "missingPassword",
-            message: "password field is missing",
-          },
-        ],
-      });
-    });
-
-    it("POST /admins --> should validate email", async () => {
-      const response = await request(app)
-        .post(url)
-        .send({ ...testAdmin, email: "thisisnotavalidemailaddress" })
-        .expect("Content-Type", /json/)
-        .expect(400);
-
-      expect(response.body.success).toBe(false);
-      expect(response.body.error).toEqual({
-        status: 400,
-        type: errorTypes.invalidArgument,
-        message: "email is not valid",
-      });
-    });
-
-    it("POST /admins --> should throw error if role is not superadmin, admin, or mod", async () => {
-      const response = await request(app)
-        .post(url)
-        .send({ ...testAdmin, role: "DUMMY" })
-        .expect("Content-Type", /json/)
-        .expect(400);
-
-      expect(response.body.success).toBe(false);
-      expect(response.body.error).toEqual({
-        status: 400,
-        type: errorTypes.invalidArgument,
-        message: "role type is not valid",
-        detail: [
-          {
-            code: "invalidRole",
-            message:
-              "role must be one of 'SUPERADMIN', 'ADMIN', and 'MODERATOR'",
-          },
-        ],
-      });
-    });
-  });
-
   describe("Login Admin", () => {
     it("POST /admins/login --> should login as admin", async () => {
       const response = await request(app)
@@ -166,7 +72,130 @@ describe("Admins", () => {
         .expect(401);
 
       expect(response.body.success).toBe(false);
-      expect(response.body.error).toEqual(unauthError);
+      expect(response.body.error).toEqual(incorrectCredentialsError);
+    });
+  });
+
+  describe("Create Admin", () => {
+    it("POST /admins --> should create an admin", async () => {
+      const response = await request(app)
+        .post(url)
+        .set("Authorization", "Bearer " + authToken)
+        .send(testAdmin)
+        .expect("Content-Type", /json/)
+        .expect(201);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toEqual(expect.objectContaining(testAdmin));
+
+      // delete admin after register and test
+      const deleteAdmin = await prisma.admin.delete({
+        where: { email: testAdmin.email },
+      });
+      expect(deleteAdmin).toBeDefined();
+    });
+
+    it("POST /admins --> should throw error if not authorized", async () => {
+      const loginResponse = await request(app)
+        .post(`${url}/login`)
+        .send({ email: "admin@gmail.com", password: "admin" })
+        .expect("Content-Type", /json/)
+        .expect(200);
+      const loginAdminToken = loginResponse.body.token;
+
+      const response = await request(app)
+        .post(url)
+        .set("Authorization", "Bearer " + loginAdminToken)
+        .send(testAdmin)
+        .expect("Content-Type", /json/)
+        .expect(403);
+
+      expect(response.body.success).toBe(false);
+      expect(response.body.error).toEqual(unauthorizedError);
+    });
+
+    it("POST /admins --> should throw error if email already exists", async () => {
+      const response = await request(app)
+        .post(url)
+        .set("Authorization", "Bearer " + authToken)
+        .send({ ...testAdmin, email: "superadmin@gmail.com" })
+        .expect("Content-Type", /json/)
+        .expect(400);
+
+      expect(response.body.success).toBe(false);
+      expect(response.body.error).toEqual({
+        status: 400,
+        type: "alreadyExists",
+        message: "email already exists",
+      });
+    });
+
+    it("POST /admins --> throws error if required field is missing", async () => {
+      const response = await request(app)
+        .post(url)
+        .set("Authorization", "Bearer " + authToken)
+        .expect("Content-Type", /json/)
+        .expect(400);
+
+      expect(response.body.success).toBe(false);
+      expect(response.body.error).toEqual({
+        status: 400,
+        type: "invalidArgument",
+        message: "invalid one or more argument(s)",
+        detail: [
+          {
+            code: "missingUsername",
+            message: "username field is missing",
+          },
+          {
+            code: "missingEmail",
+            message: "email field is missing",
+          },
+          {
+            code: "missingPassword",
+            message: "password field is missing",
+          },
+        ],
+      });
+    });
+
+    it("POST /admins --> should validate email", async () => {
+      const response = await request(app)
+        .post(url)
+        .set("Authorization", "Bearer " + authToken)
+        .send({ ...testAdmin, email: "thisisnotavalidemailaddress" })
+        .expect("Content-Type", /json/)
+        .expect(400);
+
+      expect(response.body.success).toBe(false);
+      expect(response.body.error).toEqual({
+        status: 400,
+        type: errorTypes.invalidArgument,
+        message: "email is not valid",
+      });
+    });
+
+    it("POST /admins --> should throw error if role is not superadmin, admin, or mod", async () => {
+      const response = await request(app)
+        .post(url)
+        .set("Authorization", "Bearer " + authToken)
+        .send({ ...testAdmin, role: "DUMMY" })
+        .expect("Content-Type", /json/)
+        .expect(400);
+
+      expect(response.body.success).toBe(false);
+      expect(response.body.error).toEqual({
+        status: 400,
+        type: errorTypes.invalidArgument,
+        message: "role type is not valid",
+        detail: [
+          {
+            code: "invalidRole",
+            message:
+              "role must be one of 'SUPERADMIN', 'ADMIN', and 'MODERATOR'",
+          },
+        ],
+      });
     });
   });
 
@@ -178,7 +207,7 @@ describe("Admins", () => {
         .expect(401);
 
       expect(response.body.success).toBe(false);
-      expect(response.body.error).toEqual(unauthAccess);
+      expect(response.body.error).toEqual(authRequiredError);
     });
 
     it("GET /admins/me --> should return logged in user", async () => {
