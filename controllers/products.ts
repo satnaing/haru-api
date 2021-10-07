@@ -17,9 +17,11 @@ import errorObj, {
 } from "../utils/errorObject";
 import { NextFunction } from "express";
 
-// @desc    Get all products
-// @route   GET /api/v1/categories
-// @access  Public
+/**
+ * Get all products
+ * @route   GET /api/v1/categories
+ * @access  Public
+ */
 export const getProducts = asyncHandler(async (req, res, next) => {
   type FilteredType = { [key: string]: number };
 
@@ -124,9 +126,11 @@ export const getProducts = asyncHandler(async (req, res, next) => {
   });
 });
 
-// @desc    Search products
-// @route   GET /api/v1/categories/search
-// @access  Public
+/**
+ * Search products
+ * @route   GET /api/v1/categories/search
+ * @access  Public
+ */
 export const searchProducts = asyncHandler(async (req, res, next) => {
   const querySearch = req.query.q;
 
@@ -153,9 +157,11 @@ export const searchProducts = asyncHandler(async (req, res, next) => {
   });
 });
 
-// @desc    Get Specific Products
-// @route   GET /api/v1/categories
-// @access  Public
+/**
+ * Get specific products
+ * @route   GET /api/v1/categories/:id
+ * @access  Public
+ */
 export const getProduct = asyncHandler(async (req, res, next) => {
   const id = parseInt(req.params.id);
   const queryInclude = req.query.include;
@@ -187,9 +193,11 @@ export const getProduct = asyncHandler(async (req, res, next) => {
   });
 });
 
-// @desc    Create New Product
-// @route   POST /api/v1/categories
-// @access  Private
+/**
+ * Create new product
+ * @route   POST /api/v1/categories
+ * @access  Private
+ */
 export const createProduct = asyncHandler(async (req, res, next) => {
   type RequiredFieldsType = {
     name: string | undefined;
@@ -271,9 +279,11 @@ export const createProduct = asyncHandler(async (req, res, next) => {
   });
 });
 
-// @desc    Update a Product
-// @route   PUT /api/v1/categories/:id
-// @access  Private
+/**
+ * Update a product
+ * @route   PUT /api/v1/categories/:id
+ * @access  Private
+ */
 export const updateProduct = asyncHandler(async (req, res, next) => {
   const id = parseInt(req.params.id);
 
@@ -335,9 +345,11 @@ export const updateProduct = asyncHandler(async (req, res, next) => {
   });
 });
 
-// @desc    Delete a Product
-// @route   DELETE /api/v1/categories:id
-// @access  Private
+/**
+ * Delete a product
+ * @route   DELETE /api/v1/categories:id
+ * @access  Private
+ */
 export const deleteProduct = asyncHandler(async (req, res, next) => {
   const id = parseInt(req.params.id);
 

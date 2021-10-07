@@ -15,9 +15,11 @@ import errorObj, {
 } from "../utils/errorObject";
 import { ExtendedRequest } from "../utils/extendedRequest";
 
-// @desc    Register New Customer
-// @route   POST /api/v1/auth/register
-// @access  Public
+/**
+ * Register new customer
+ * @route   POST /api/v1/auth/register
+ * @access  Public
+ */
 export const registerCustomer = asyncHandler(async (req, res, next) => {
   const email: string = req.body.email;
   const fullname: string = req.body.fullname;
@@ -61,9 +63,11 @@ export const registerCustomer = asyncHandler(async (req, res, next) => {
   });
 });
 
-// @desc    Login Customer
-// @route   POST /api/v1/auth/login
-// @access  Public
+/**
+ * Login customer
+ * @route   POST /api/v1/auth/login
+ * @access  Public
+ */
 export const loginCustomer = asyncHandler(async (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
@@ -98,9 +102,11 @@ export const loginCustomer = asyncHandler(async (req, res, next) => {
   });
 });
 
-// @desc    Get Current Logged-in User
-// @route   GET /api/v1/auth/me
-// @access  Private
+/**
+ * Get current logged-in user
+ * @route   GET /api/v1/auth/me
+ * @access  Private
+ */
 export const getMe = asyncHandler(async (req: ExtendedRequest, res, next) => {
   const user = await prisma.customer.findUnique({
     where: { id: req!.user!.id },

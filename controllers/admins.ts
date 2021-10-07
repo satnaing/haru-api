@@ -15,9 +15,11 @@ import {
   validateEmail,
 } from "../utils/helperFunctions";
 
-// @desc    Create Admin
-// @route   POST /api/v1/admins
-// @access  Private (superadmin)
+/**
+ * Create admin
+ * @route   POST /api/v1/admins
+ * @access  Private (superadmin)
+ */
 export const createAdmin = asyncHandler(async (req, res, next) => {
   const username = req.body.username;
   const email = req.body.email;
@@ -72,9 +74,11 @@ export const createAdmin = asyncHandler(async (req, res, next) => {
   });
 });
 
-// @desc    Login Admin
-// @route   POST /api/v1/admins/login
-// @access  PUBLIC
+/**
+ * Login admin
+ * @route   POST /api/v1/admins/login
+ * @access  PUBLIC
+ */
 export const loginAdmin = asyncHandler(async (req, res, next) => {
   const email: string | undefined = req.body.email;
   const password: string | undefined = req.body.password;
@@ -110,9 +114,11 @@ export const loginAdmin = asyncHandler(async (req, res, next) => {
   });
 });
 
-// @desc    Get Current Logged-in Admin
-// @route   GET /api/v1/admins/me
-// @access  Private
+/**
+ * Get current logged-in admin
+ * @route   GET /api/v1/admins/me
+ * @access  Private
+ */
 export const getMe = asyncHandler(async (req: ExtendedRequest, res, next) => {
   const user = await prisma.admin.findUnique({
     where: { id: req!.admin!.id },

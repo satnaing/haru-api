@@ -9,9 +9,11 @@ import {
 } from "../utils/helperFunctions";
 import { Prisma } from ".prisma/client";
 
-// @desc    Get all categories
-// @route   GET /api/v1/categories
-// @access  Public
+/**
+ * Get all categories
+ * @route   GET /api/v1/categories
+ * @access  Public
+ */
 export const getCategories = asyncHandler(async (req, res, next) => {
   // Type Declaration
   type OrderType = { [key: string]: string };
@@ -45,9 +47,11 @@ export const getCategories = asyncHandler(async (req, res, next) => {
     .json({ success: true, count: categories.length, data: categories });
 });
 
-// @desc    Get specific category
-// @route   GET /api/v1/categories/:id
-// @access  Public
+/**
+ * Get specific category
+ * @route   GET /api/v1/categories/:id
+ * @access  Public
+ */
 export const getCategory = asyncHandler(async (req, res, next) => {
   const id = parseInt(req.params.id);
   const querySelect = req.query.select;
@@ -74,9 +78,11 @@ export const getCategory = asyncHandler(async (req, res, next) => {
   });
 });
 
-// @desc    Create a new category
-// @route   POST /api/v1/categories
-// @access  Private (admin)
+/**
+ * Create a new category
+ * @route   POST /api/v1/categories
+ * @access  Private (admin)
+ */
 export const createCategory = asyncHandler(async (req, res, next) => {
   const queryName: string | undefined = req.body.name;
   const id: number | undefined = parseInt(req.body.id) || undefined;
@@ -110,9 +116,11 @@ export const createCategory = asyncHandler(async (req, res, next) => {
   });
 });
 
-// @desc    Delete a category
-// @route   DELETE /api/v1/categories/:id
-// @access  Private (admin)
+/**
+ * Delete a category
+ * @route   DELETE /api/v1/categories/:id
+ * @access  Private (admin)
+ */
 export const deleteCategory = asyncHandler(async (req, res, next) => {
   const id = parseInt(req.params.id);
 

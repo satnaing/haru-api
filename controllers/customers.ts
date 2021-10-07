@@ -3,9 +3,11 @@ import prisma from "../prisma/client";
 import { resource404Error } from "../utils/errorObject";
 import ErrorResponse from "../utils/errorResponse";
 
-// @desc    Get All Customers
-// @route   GET /api/v1/customers
-// @access  Private
+/**
+ * Get all customers
+ * @route   GET /api/v1/customers
+ * @access  Private
+ */
 export const getCustomers = asyncHandler(async (req, res, next) => {
   const customers = await prisma.customer.findMany({
     // prisma desn't provide exclude yet, thus I have to
@@ -28,9 +30,11 @@ export const getCustomers = asyncHandler(async (req, res, next) => {
   });
 });
 
-// @desc    Get Specific Customer
-// @route   GET /api/v1/customers/:id
-// @access  Private
+/**
+ * GGet specific customer
+ * @route   GET /api/v1/customers/:id
+ * @access  Private
+ */
 export const getCustomer = asyncHandler(async (req, res, next) => {
   const id = parseInt(req.params.id);
 
@@ -57,9 +61,11 @@ export const getCustomer = asyncHandler(async (req, res, next) => {
   });
 });
 
-// @desc    Delete Customer
-// @route   DEETE /api/v1/customers
-// @access  Private
+/**
+ * Delete customer
+ * @route   DEETE /api/v1/customers
+ * @access  Private
+ */
 export const deleteCustomer = asyncHandler(async (req, res, next) => {
   const id = parseInt(req.params.id);
 
