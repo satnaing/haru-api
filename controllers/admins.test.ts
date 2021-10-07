@@ -7,6 +7,7 @@ import {
   authRequiredError,
   incorrectCredentialsError,
   unauthorizedError,
+  resource404Error,
 } from "../utils/errorObject";
 
 const url = "/api/v1/admins";
@@ -312,6 +313,54 @@ describe("Admins", () => {
         type: errorTypes.notFound,
         message: "record to delete does not exist.",
       });
+    });
+  });
+
+  describe("Get Admins", () => {
+    it("GET /admins --> should return all admins", async () => {
+      const response = await request(app)
+        .get(url)
+        .set("Authorization", "Bearer " + authToken)
+        .expect("Content-Type", /json/)
+        .expect(200);
+
+      expect(response.body.count).toBeNumber;
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toEqual(
+        expect.arrayContaining([
+          {
+            id: expect.any(Number),
+            username: expect.any(String),
+            email: expect.any(String),
+            role: expect.toBeOneOf(["SUPERADMIN", "ADMIN", "MODERATOR"]),
+            active: expect.any(Boolean),
+            createdAt: expect.any(String),
+            updatedAt: expect.toBeOneOf([String, null]),
+          },
+        ])
+      );
+    });
+
+    it("GET /admins/:id --> should return specific admin", async () => {
+      const response = await request(app)
+        .get(`${url}/2`)
+        .set("Authorization", "Bearer " + authToken)
+        .expect("Content-Type", /json/)
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.id).toBe(2);
+    });
+
+    it("GET /admins/:id --> should throw 404 Error if not found", async () => {
+      const response = await request(app)
+        .get(`${url}/999`)
+        .set("Authorization", "Bearer " + authToken)
+        .expect("Content-Type", /json/)
+        .expect(404);
+
+      expect(response.body.success).toBe(false);
+      expect(response.body.error).toEqual(resource404Error);
     });
   });
 

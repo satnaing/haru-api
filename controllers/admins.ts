@@ -4,6 +4,7 @@ import errorObj, {
   errorTypes,
   invalidEmail,
   incorrectCredentialsError,
+  resource404Error,
 } from "../utils/errorObject";
 import ErrorResponse from "../utils/errorResponse";
 import { ExtendedRequest } from "../utils/extendedRequest";
@@ -221,6 +222,60 @@ export const updateAdminSelf = asyncHandler(
     });
   }
 );
+
+/**
+ * Get all admins
+ * @route   GET /api/v1/admins
+ * @access  Private (superadmin)
+ */
+export const getAdmins = asyncHandler(async (req, res, next) => {
+  const admins = await prisma.admin.findMany({
+    select: {
+      id: true,
+      username: true,
+      email: true,
+      active: true,
+      role: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
+  res.status(200).json({
+    success: true,
+    count: admins.length,
+    data: admins,
+  });
+});
+
+/**
+ * Get specific admin
+ * @route   GET /api/v1/admins/:id
+ * @access  Private (superadmin)
+ */
+export const getAdmin = asyncHandler(async (req, res, next) => {
+  const id = parseInt(req.params.id);
+
+  const admin = await prisma.admin.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      username: true,
+      email: true,
+      active: true,
+      role: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
+
+  // Throws 404 error if admin not found
+  if (!admin) return next(new ErrorResponse(resource404Error, 404));
+
+  res.status(200).json({
+    success: true,
+    data: admin,
+  });
+});
 
 /**
  * Delete user by id
