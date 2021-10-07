@@ -20,7 +20,7 @@ type AdminType = {
 
 const testAdmin: AdminType = {
   username: "testadmin",
-  email: "testadmin12@gmail.com",
+  email: "testadmin14@gmail.com",
   password: "testadminpassword",
 };
 
@@ -242,7 +242,10 @@ describe("Admins", () => {
         .expect(401);
 
       expect(response.body.success).toBe(false);
-      expect(response.body.error).toEqual(incorrectCredentialsError);
+      expect(response.body.error).toEqual({
+        ...incorrectCredentialsError,
+        message: "current password is incorrect",
+      });
 
       // delete admin after register and test
       const deleteAdmin = await prisma.admin.delete({

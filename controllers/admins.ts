@@ -161,7 +161,15 @@ export const changePassword = asyncHandler(
 
     // Throws error if current password is incorrect
     if (!correctPassword)
-      return next(new ErrorResponse(incorrectCredentialsError, 401));
+      return next(
+        new ErrorResponse(
+          {
+            ...incorrectCredentialsError,
+            message: "current password is incorrect",
+          },
+          401
+        )
+      );
 
     // Hash new password
     const hashedPassword = await hashPassword(newPassword);

@@ -63,11 +63,11 @@ export const unauthorizedError = errorObj(
  * Incorrect Credentials Error
  * @description { 401, unauthorized, "email or password is incorrect" }
  */
-export const incorrectCredentialsError = errorObj(
-  401,
-  errorTypes.unauthorized,
-  "email or password is incorrect"
-);
+export const incorrectCredentialsError = {
+  status: 401,
+  type: errorTypes.unauthorized,
+  message: "email or password is incorrect",
+};
 
 /**
  * Auth Required Error
