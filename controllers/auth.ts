@@ -12,6 +12,7 @@ import ErrorResponse from "../utils/errorResponse";
 import errorObj, {
   errorTypes,
   incorrectCredentialsError,
+  invalidEmail,
 } from "../utils/errorObject";
 import { ExtendedRequest } from "../utils/extendedRequest";
 
@@ -124,3 +125,93 @@ export const getMe = asyncHandler(async (req: ExtendedRequest, res, next) => {
     data: user,
   });
 });
+
+/**
+ * Update Customer Details (self)
+ * @route   PUT /api/v1/auth/update-details
+ * @access  Private
+ */
+export const updateCustomerSelf = asyncHandler(
+  async (req: ExtendedRequest, res, next) => {
+    const fullname: string | undefined = req.body.fullname;
+    const shippingAddress: string | undefined = req.body.shippingAddress;
+    const phone: string | undefined = req.body.phone;
+    const email: string | undefined = req.body.email;
+
+    // Throws error if email is invalid
+    if (email && !validateEmail(email)) {
+      return next(new ErrorResponse(invalidEmail, 400));
+    }
+
+    const updatedCustomer = await prisma.customer.update({
+      where: { id: req!.user!.id },
+      data: {
+        fullname,
+        email,
+        shippingAddress,
+        phone,
+        updatedAt: new Date().toISOString(),
+      },
+      select: {
+        fullname: true,
+        email: true,
+        shippingAddress: true,
+        phone: true,
+        updatedAt: true,
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      data: updatedCustomer,
+    });
+  }
+);
+
+/**
+ * Update Customer Password (self)
+ * @route   PUT /api/v1/auth/change-password
+ * @access  Private
+ */
+export const changePassword = asyncHandler(
+  async (req: ExtendedRequest, res, next) => {
+    const currentPassword = req.body.currentPassword;
+    const newPassword = req.body.newPassword;
+
+    // Check required fields
+    const requiredFields = { currentPassword, newPassword };
+    const hasError = checkRequiredFields(requiredFields, next);
+    if (hasError !== false) return hasError;
+
+    // Check current password is correct
+    const correctPassword = await comparePassword(
+      currentPassword,
+      req!.user!.password
+    );
+
+    // Throws error if current password is incorrect
+    if (!correctPassword)
+      return next(
+        new ErrorResponse(
+          {
+            ...incorrectCredentialsError,
+            message: "current password is incorrect",
+          },
+          401
+        )
+      );
+
+    // Hash new password
+    const hashedPassword = await hashPassword(newPassword);
+
+    await prisma.customer.update({
+      where: { id: req!.user!.id },
+      data: { password: hashedPassword },
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "password has been updated",
+    });
+  }
+);

@@ -11,11 +11,18 @@ import {
 const url = "/api/v1/auth";
 
 const newUser = {
-  email: "newuser8@gmail.com",
+  email: "newuser7j@gmail.com",
   fullname: "newuser",
   password: "newuserpassword",
   shippingAddress: "yangon",
   phone: "09283928",
+};
+
+const updateUser = {
+  fullname: "new username",
+  email: "updatedemail3@gmail.com",
+  shippingAddress: "updated shipping addr",
+  phone: "099384938",
 };
 
 let authToken: string;
@@ -31,12 +38,6 @@ describe("Auth Controller", () => {
 
       expect(response.body.success).toBe(true);
       expect(response.body.token).toBeString();
-
-      // delete user after register
-      const deleteUser = await prisma.customer.delete({
-        where: { email: newUser.email },
-      });
-      expect(deleteUser).toBeDefined();
     });
 
     it("POST /auth/register --> should throw error if required fields not include", async () => {
@@ -99,6 +100,72 @@ describe("Auth Controller", () => {
         type: errorTypes.invalidArgument,
         message: "email is not valid",
       });
+    });
+  });
+
+  describe("Update Customer", () => {
+    let loginToken = "";
+    it("PUT /auth/update-details --> should update customer data (self)", async () => {
+      // login
+      const loginRresponse = await request(app)
+        .post(`${url}/login`)
+        .send({ email: newUser.email, password: newUser.password })
+        .expect("Content-Type", /json/)
+        .expect(200);
+
+      loginToken = loginRresponse.body.token;
+
+      const response = await request(app)
+        .put(`${url}/update-details`)
+        .set("Authorization", "Bearer " + loginToken)
+        .send(updateUser)
+        .expect("Content-Type", /json/)
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toEqual({
+        ...updateUser,
+        updatedAt: expect.any(String),
+      });
+    });
+
+    it("PUT /auth/change-password --> should return error if current password is incorrect", async () => {
+      const response = await request(app)
+        .put(`${url}/change-password`)
+        .set("Authorization", "Bearer " + loginToken)
+        .send({
+          currentPassword: "wrong password",
+          newPassword: "newpassword",
+        })
+        .expect("Content-Type", /json/)
+        .expect(401);
+
+      expect(response.body.success).toBe(false);
+      expect(response.body.error).toEqual({
+        ...incorrectCredentialsError,
+        message: "current password is incorrect",
+      });
+    });
+
+    it("PUT /auth/change-password --> should update password", async () => {
+      const response = await request(app)
+        .put(`${url}/change-password`)
+        .set("Authorization", "Bearer " + loginToken)
+        .send({
+          currentPassword: newUser.password,
+          newPassword: "newpassword",
+        })
+        .expect("Content-Type", /json/)
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.message).toEqual("password has been updated");
+
+      // delete user after register and test
+      const deleteUser = await prisma.customer.delete({
+        where: { email: updateUser.email },
+      });
+      expect(deleteUser).toBeDefined();
     });
   });
 
