@@ -68,7 +68,7 @@ model Customer {
   phone             String?   @db.VarChar(20)
   orders            Order[]
   resetPwdToken     String?    @db.VarChar(255) @unique  @map("reset_password_token")
-  resetPwdExpire    DateTime?  @map("reset_password_expire")
+  resetPwdExpire    BigInt?    @db.BigInt @map("reset_password_expire")
   createdAt        DateTime     @default(now()) @map("created_at")
   updatedAt        DateTime?    @map("updated_at")
   

@@ -1,9 +1,11 @@
 import { Router } from "express";
 import {
   changePassword,
+  forgotPassword,
   getMe,
   loginCustomer,
   registerCustomer,
+  resetPassword,
   updateCustomerSelf,
 } from "../controllers/auth";
 import { protect } from "../middlewares/authHandler";
@@ -16,7 +18,7 @@ router
   .post("/login", loginCustomer)
   .put("/update-details", protect, updateCustomerSelf)
   .put("/change-password", protect, changePassword)
-  .post("/forgot-password")
-  .post("/reset-password/:resettoken");
+  .post("/forgot-password", forgotPassword)
+  .put("/reset-password/:resetToken", resetPassword);
 
 export default router;

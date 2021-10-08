@@ -13,6 +13,8 @@ export const errorTypes = {
   missingField: "missingField",
   invalidQuery: "invalidQuery",
   invalidArgument: "invalidArgument",
+  invalidToken: "invalidToken",
+  expireToken: "expireToken",
   unauthorized: "unauthorized",
   forbidden: "forbidden",
 };
@@ -166,6 +168,26 @@ export const invalidArgError = (detail: ErrorDetailType[]) =>
 
 export const missingField = (field: string) =>
   errorObj(400, errorTypes.missingField, `${field} field is missing`);
+
+/**
+ * Invalid Token Error
+ * @return Object - {400, invalidToken, "token is invalid"}
+ */
+export const invalidTokenError = errorObj(
+  400,
+  errorTypes.invalidToken,
+  "token is invalid"
+);
+
+/**
+ * Expire Token Error
+ * @return Object - {400, invalidToken, "token is invalid"}
+ */
+export const expireTokenError = errorObj(
+  400,
+  errorTypes.expireToken,
+  "token is expired"
+);
 
 export default errorObj;
 

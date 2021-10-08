@@ -1,20 +1,26 @@
-import bcrypt from "bcrypt";
+import crypto from "crypto";
 import asyncHandler from "../middlewares/asyncHandler";
 import prisma from "../prisma/client";
 import {
   checkRequiredFields,
   comparePassword,
+  generateResetPwdToken,
   generateToken,
   hashPassword,
   validateEmail,
 } from "../utils/helperFunctions";
 import ErrorResponse from "../utils/errorResponse";
 import errorObj, {
+  defaultError,
   errorTypes,
+  expireTokenError,
   incorrectCredentialsError,
   invalidEmail,
+  invalidTokenError,
+  resource404Error,
 } from "../utils/errorObject";
 import { ExtendedRequest } from "../utils/extendedRequest";
+import sendMail from "../utils/sendEmail";
 
 /**
  * Register new customer
@@ -215,3 +221,118 @@ export const changePassword = asyncHandler(
     });
   }
 );
+
+/**
+ * Forgot Password
+ * @route   POST /api/v1/auth/forgot-password
+ * @access  Public
+ */
+export const forgotPassword = asyncHandler(async (req, res, next) => {
+  const email: string | undefined = req.body.email;
+
+  // Check if email include
+  const hasError = checkRequiredFields({ email }, next);
+  if (hasError !== false) return hasError;
+
+  const customer = await prisma.customer.findUnique({
+    where: { email },
+  });
+
+  if (!customer) return next(new ErrorResponse(resource404Error, 404));
+
+  const [resetToken, resetPwdToken, resetPwdExpire] = generateResetPwdToken();
+
+  // Save pwdToken and pwdExpire in the db
+  await prisma.customer.update({
+    where: { email },
+    data: {
+      resetPwdToken: resetPwdToken as string,
+      resetPwdExpire: resetPwdExpire as number,
+    },
+  });
+
+  // Create reset URL
+  const resetURL = `${req.protocol}://${req.get(
+    "host"
+  )}/api/v1/auth/reset-password/${resetToken}`;
+
+  // Reset email message
+  const message = `You are receiving this email because 
+  you (or someone else) has requested the reset of a password. 
+  Please make a PUT request to: \n\n ${resetURL}`;
+
+  try {
+    await sendMail({
+      email: customer.email,
+      subject: "Password reset token (valid for 10min)",
+      message,
+    });
+    res.status(200).json({
+      success: true,
+      message: "Email has been sent...",
+    });
+  } catch (err) {
+    // Log error
+    console.error(err);
+
+    // Save user
+    await prisma.customer.update({
+      where: { id: customer.id },
+      data: {
+        resetPwdToken: null,
+        resetPwdExpire: null,
+      },
+    });
+
+    return next(new ErrorResponse(defaultError, 500));
+  }
+});
+
+/**
+ * Reset Password
+ * @route   PUT /api/v1/auth/reset-password/:resetToken
+ * @access  Public
+ */
+export const resetPassword = asyncHandler(async (req, res, next) => {
+  const resetToken = req.params.resetToken;
+  const password = req.body.password;
+
+  // Throws error if password not include
+  const hasError = checkRequiredFields({ password }, next);
+  if (hasError !== false) return hasError;
+
+  const resetPwdToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+
+  const customer = await prisma.customer.findUnique({
+    where: { resetPwdToken },
+  });
+
+  // Throws error if token not found
+  if (!customer) return next(new ErrorResponse(invalidTokenError, 400));
+
+  // Throws error if token is expired
+  if ((customer.resetPwdExpire as bigint) < Date.now()) {
+    return next(new ErrorResponse(expireTokenError, 400));
+  }
+
+  const hashedPassword = await hashPassword(password);
+
+  // Update password and token data
+  await prisma.customer.update({
+    where: { resetPwdToken },
+    data: {
+      password: hashedPassword,
+      updatedAt: new Date().toISOString(),
+      resetPwdToken: null,
+      resetPwdExpire: null,
+    },
+  });
+
+  res.status(200).json({
+    success: true,
+    message: "password has been reset",
+  });
+});

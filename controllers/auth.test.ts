@@ -6,6 +6,7 @@ import {
   errorTypes,
   authRequiredError,
   incorrectCredentialsError,
+  resource404Error,
 } from "../utils/errorObject";
 
 const url = "/api/v1/auth";
@@ -243,6 +244,72 @@ describe("Auth Controller", () => {
         email: expect.any(String),
         shippingAddress: expect.any(String),
         phone: expect.toBeOneOf([String, null]),
+      });
+    });
+  });
+
+  describe("Forgot and Reset Password", () => {
+    it("POST /auth/forgot-password --> should throws error if email not include", async () => {
+      const response = await request(app)
+        .post(`${url}/forgot-password`)
+        .expect("Content-Type", /json/)
+        .expect(400);
+
+      expect(response.body.success).toBe(false);
+      expect(response.body.error).toEqual({
+        status: 400,
+        type: errorTypes.invalidArgument,
+        message: "invalid one or more argument(s)",
+        detail: [
+          {
+            code: "missingEmail",
+            message: "email field is missing",
+          },
+        ],
+      });
+    });
+
+    it("POST /auth/forgot-password --> should throws 404 error if email not found", async () => {
+      const response = await request(app)
+        .post(`${url}/forgot-password`)
+        .send({ email: "invalidemail@gmail.com" })
+        .expect("Content-Type", /json/)
+        .expect(404);
+
+      expect(response.body.success).toBe(false);
+      expect(response.body.error).toEqual(resource404Error);
+    });
+
+    // it("POST /auth/forgot-password --> should send email", async () => {
+    //   const response = await request(app)
+    //     .post(`${url}/forgot-password`)
+    //     .send({ email: "dgohn0@gravatar.com" })
+    //     .expect("Content-Type", /json/)
+    //     .expect(200);
+
+    //   expect(response.body.success).toBe(true);
+    //   expect(response.body.message).toEqual("Email has been sent...");
+    // });
+
+    /*=========== Reset Password ===========*/
+
+    it("POST /auth/reset-password/resetToken --> should throws error if password not include", async () => {
+      const response = await request(app)
+        .put(`${url}/reset-password/resetToken`)
+        .expect("Content-Type", /json/)
+        .expect(400);
+
+      expect(response.body.success).toBe(false);
+      expect(response.body.error).toEqual({
+        status: 400,
+        type: errorTypes.invalidArgument,
+        message: "invalid one or more argument(s)",
+        detail: [
+          {
+            code: "missingPassword",
+            message: "password field is missing",
+          },
+        ],
       });
     });
   });

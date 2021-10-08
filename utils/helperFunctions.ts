@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 import { NextFunction } from "express";
 import {
   invalidArgDetail,
@@ -116,21 +117,6 @@ export const checkRole = (role: string) => {
   const allowedRoles = ["SUPERADMIN", "ADMIN", "MODERATOR"];
   return allowedRoles.includes(role) ? true : false;
 };
-// const allowedRoles = ["SUPERADMIN", "ADMIN", "MODERATOR"];
-// if (role && !allowedRoles.includes(role)) {
-//   const roleError = errorObj(
-//     400,
-//     errorTypes.invalidArgument,
-//     "role type is not valid",
-//     [
-//       {
-//         code: "invalidRole",
-//         message: "role must be one of 'SUPERADMIN', 'ADMIN', and 'MODERATOR'",
-//       },
-//     ]
-//   );
-//   return next(new ErrorResponse(roleError, 400));
-// }
 
 /**
  * Hash plain text password
@@ -164,3 +150,23 @@ export const generateToken = (id: number, email: string) =>
     process.env.JWT_SECRET as string,
     { expiresIn: "1h" }
   );
+
+/**
+ * Generate Reset Password Token
+ * @returns Array - [resetToken,resetPwdToken,resetPwdExpire]
+ */
+export const generateResetPwdToken = () => {
+  // Generate token
+  const resetToken = crypto.randomBytes(20).toString("hex");
+
+  // Hash token and set to resetPwdToken field
+  const resetPwdToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+
+  // Set expire
+  const resetPwdExpire = Date.now() + 10 * 60 * 1000;
+
+  return [resetToken, resetPwdToken, resetPwdExpire];
+};
