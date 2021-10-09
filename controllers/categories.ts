@@ -69,7 +69,7 @@ export const getCategory = asyncHandler(async (req, res, next) => {
 
   // Throws an error if category does not exists
   if (!category) {
-    return next(new ErrorResponse(resource404Error, 404));
+    return next(new ErrorResponse(resource404Error("category"), 404));
   }
 
   res.status(200).json({

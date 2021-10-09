@@ -212,7 +212,7 @@ describe("Product Controler", () => {
         .expect(404);
 
       expect(response.body.success).toBeFalsy();
-      expect(response.body.error).toEqual(resource404Error);
+      expect(response.body.error).toEqual(resource404Error("product"));
     });
 
     // include related categories

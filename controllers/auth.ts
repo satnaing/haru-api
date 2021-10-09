@@ -17,7 +17,6 @@ import errorObj, {
   incorrectCredentialsError,
   invalidEmail,
   invalidTokenError,
-  resource404Error,
 } from "../utils/errorObject";
 import { ExtendedRequest } from "../utils/extendedRequest";
 import sendMail from "../utils/sendEmail";
@@ -234,16 +233,10 @@ export const forgotPassword = asyncHandler(async (req, res, next) => {
   const hasError = checkRequiredFields({ email }, next);
   if (hasError !== false) return hasError;
 
-  const customer = await prisma.customer.findUnique({
-    where: { email },
-  });
-
-  if (!customer) return next(new ErrorResponse(resource404Error, 404));
-
   const [resetToken, resetPwdToken, resetPwdExpire] = generateResetPwdToken();
 
   // Save pwdToken and pwdExpire in the db
-  await prisma.customer.update({
+  const customer = await prisma.customer.update({
     where: { email },
     data: {
       resetPwdToken: resetPwdToken as string,

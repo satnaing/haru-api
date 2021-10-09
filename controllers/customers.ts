@@ -51,8 +51,9 @@ export const getCustomer = asyncHandler(async (req, res, next) => {
     },
   });
 
+  // Throws 404 error if customer not found
   if (!customer) {
-    return next(new ErrorResponse(resource404Error, 404));
+    return next(new ErrorResponse(resource404Error("customer"), 404));
   }
 
   res.status(200).json({
@@ -63,19 +64,15 @@ export const getCustomer = asyncHandler(async (req, res, next) => {
 
 /**
  * Delete customer
- * @route   DEETE /api/v1/customers
+ * @route   DEETE /api/v1/customers/:id
  * @access  Private
  */
 export const deleteCustomer = asyncHandler(async (req, res, next) => {
   const id = parseInt(req.params.id);
 
-  const customer = await prisma.customer.delete({
+  await prisma.customer.delete({
     where: { id },
   });
-
-  if (!customer) {
-    return next(new ErrorResponse(resource404Error, 404));
-  }
 
   res.status(204).json({
     success: true,

@@ -184,7 +184,7 @@ export const getProduct = asyncHandler(async (req, res, next) => {
 
   // throws error if no product with that id found
   if (!product) {
-    return next(new ErrorResponse(resource404Error, 404));
+    return next(new ErrorResponse(resource404Error("product"), 404));
   }
 
   res.status(200).json({

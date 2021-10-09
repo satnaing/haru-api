@@ -95,7 +95,7 @@ describe("Categories Controller", () => {
 
       expect(response.body).toEqual({
         success: false,
-        error: resource404Error,
+        error: resource404Error("category"),
       });
     });
   });

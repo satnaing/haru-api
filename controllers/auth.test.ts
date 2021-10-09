@@ -6,7 +6,6 @@ import {
   errorTypes,
   authRequiredError,
   incorrectCredentialsError,
-  resource404Error,
 } from "../utils/errorObject";
 
 const url = "/api/v1/auth";
@@ -277,7 +276,11 @@ describe("Auth Controller", () => {
         .expect(404);
 
       expect(response.body.success).toBe(false);
-      expect(response.body.error).toEqual(resource404Error);
+      expect(response.body.error).toEqual({
+        status: 404,
+        type: "notFound",
+        message: "record to update not found.",
+      });
     });
 
     // it("POST /auth/forgot-password --> should send email", async () => {
