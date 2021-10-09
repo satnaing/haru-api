@@ -10,21 +10,25 @@ import {
   updateAdmin,
   updateAdminSelf,
 } from "../controllers/admins";
-import { authorize, protectAdmin } from "../middlewares/authHandler";
+import { authorize, adminOnly } from "../middlewares/authHandler";
 
 const router = Router();
 
 router
-  .get("/", protectAdmin, authorize("SUPERADMIN"), getAdmins)
-  .post("/", protectAdmin, authorize("SUPERADMIN"), createAdmin)
-  .put("/", protectAdmin, updateAdminSelf)
-  .get("/me", protectAdmin, getMe)
-  .post("/login", loginAdmin)
-  .put("/change-password", protectAdmin, changePassword);
+  .route("/")
+  .get(adminOnly, authorize("SUPERADMIN"), getAdmins)
+  .post(adminOnly, authorize("SUPERADMIN"), createAdmin)
+  .put(adminOnly, updateAdminSelf);
 
 router
-  .get("/:id", protectAdmin, authorize("SUPERADMIN"), getAdmin)
-  .put("/:id", protectAdmin, authorize("SUPERADMIN"), updateAdmin)
-  .delete("/:id", protectAdmin, authorize("SUPERADMIN"), deleteAdmin);
+  .get("/me", adminOnly, getMe)
+  .post("/login", loginAdmin)
+  .put("/change-password", adminOnly, changePassword);
+
+router
+  .route("/:id")
+  .get(adminOnly, authorize("SUPERADMIN"), getAdmin)
+  .put(adminOnly, authorize("SUPERADMIN"), updateAdmin)
+  .delete(adminOnly, authorize("SUPERADMIN"), deleteAdmin);
 
 export default router;
