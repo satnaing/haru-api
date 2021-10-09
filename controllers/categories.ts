@@ -134,4 +134,29 @@ export const deleteCategory = asyncHandler(async (req, res, next) => {
   });
 });
 
-// UPDATE CATEGORY
+/**
+ * Update category
+ * @route   PUT /api/v1/categories/:id
+ * @access  Private
+ */
+export const updateCategory = asyncHandler(async (req, res, next) => {
+  const id = parseInt(req.params.id);
+  const name: string | undefined = req.body.name;
+  const description: string | undefined = req.body.description;
+  const thumbnailImage: string | undefined = req.body.thumbnailImage;
+
+  const category = await prisma.category.update({
+    where: { id },
+    data: {
+      name,
+      description,
+      thumbnailImage,
+      updatedAt: new Date().toISOString(),
+    },
+  });
+
+  res.status(200).json({
+    success: true,
+    data: category,
+  });
+});

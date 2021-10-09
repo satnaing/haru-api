@@ -180,6 +180,48 @@ describe("Categories Controller", () => {
     // Auth Access
   });
 
+  describe("Update Category", () => {
+    const reqBody = {
+      name: "shoes",
+      description: "Shoes and Sneakers",
+      thumbnailImage: "somedummyimage.png",
+    };
+
+    // name            String     @db.VarChar(50) @unique
+    // description     String?    @db.VarChar(255)
+    // thumbnailImage  String?    @db.VarChar(100) @map("thumbnail_image")
+    // createdAt       DateTime  @default(now()) @map("created_at")
+    // updatedAt       DateTime?  @map("updated_at")
+    it("PUT /categories/:id --> should update category", async () => {
+      const response = await request(app)
+        .put(`${url}/777`)
+        .send(reqBody)
+        .expect("Content-Type", /json/)
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toEqual({
+        ...reqBody,
+        id: expect.any(Number),
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String),
+      });
+    });
+
+    it("PUT /categories/:id --> 404 if category not found", async () => {
+      const response = await request(app).put(`${url}/9999`).send(reqBody);
+      //   .expect("Content-Type", /json/)
+      //   .expect(404);
+
+      // expect(response.body.success).toBe(false);
+      expect(response.body.error).toEqual({
+        status: 404,
+        type: errorTypes.notFound,
+        message: "record to update not found.",
+      });
+    });
+  });
+
   describe("Delete Category", () => {
     it("DELETE /categories/:id --> delete a specific category", async () => {
       const response = await request(app).delete(`${url}/777`).expect(204);
