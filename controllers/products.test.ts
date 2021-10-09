@@ -19,7 +19,7 @@ const adminLogin = async () => {
   authToken = response.body.token;
 };
 
-adminLogin();
+beforeAll(() => adminLogin());
 
 describe("Product Controler", () => {
   describe("Get Products", () => {
