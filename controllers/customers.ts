@@ -31,7 +31,7 @@ export const getCustomers = asyncHandler(async (req, res, next) => {
 });
 
 /**
- * GGet specific customer
+ * Get specific customer
  * @route   GET /api/v1/customers/:id
  * @access  Private
  */
