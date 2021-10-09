@@ -20,7 +20,7 @@ router
   .put("/", protectAdmin, updateAdminSelf)
   .get("/me", protectAdmin, getMe)
   .post("/login", loginAdmin)
-  .post("/change-password", protectAdmin, changePassword);
+  .put("/change-password", protectAdmin, changePassword);
 
 router
   .get("/:id", protectAdmin, authorize("SUPERADMIN"), getAdmin)

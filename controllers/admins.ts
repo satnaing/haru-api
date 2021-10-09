@@ -129,7 +129,7 @@ export const getMe = asyncHandler(async (req: ExtendedRequest, res, next) => {
 
 /**
  * Change current logged-in admin password
- * @route   POST /api/v1/admins/change-password
+ * @route   PUT /api/v1/admins/change-password
  * @access  Private
  */
 export const changePassword = asyncHandler(

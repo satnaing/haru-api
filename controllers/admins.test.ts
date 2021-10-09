@@ -233,7 +233,7 @@ describe("Admins", () => {
       expect(response2.body.success).toBe(true);
     });
 
-    it("POST /admins/change-password --> should update password", async () => {
+    it("PUT /admins/change-password --> should update password", async () => {
       // login first
       const loginRresponse = await request(app)
         .post(`${url}/login`)
@@ -242,7 +242,7 @@ describe("Admins", () => {
         .expect(200);
 
       const response = await request(app)
-        .post(`${url}/change-password`)
+        .put(`${url}/change-password`)
         .set("Authorization", "Bearer " + loginRresponse.body.token)
         .send({
           currentPassword: testAdmin.password,
@@ -255,7 +255,7 @@ describe("Admins", () => {
       expect(response.body.message).toEqual("password has been updated");
     });
 
-    it("POST /admins/change-password --> should return error if current password is incorrect", async () => {
+    it("PUT /admins/change-password --> should return error if current password is incorrect", async () => {
       // login first
       const loginRresponse = await request(app)
         .post(`${url}/login`)
@@ -264,7 +264,7 @@ describe("Admins", () => {
         .expect(200);
 
       const response = await request(app)
-        .post(`${url}/change-password`)
+        .put(`${url}/change-password`)
         .set("Authorization", "Bearer " + loginRresponse.body.token)
         .send({
           currentPassword: "wrong password",
