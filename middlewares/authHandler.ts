@@ -42,11 +42,11 @@ export const protect = asyncHandler(async (req: ExtendedRequest, res, next) => {
 });
 
 /**
- * Middleware for protected routes
+ * Middleware for admin only routes
  * @description used in routes before auth required controllers
  * @return auth error | next()
  */
-export const protectAdmin = asyncHandler(
+export const adminOnly = asyncHandler(
   async (req: ExtendedRequest, res, next) => {
     let token: string = "";
     if (
