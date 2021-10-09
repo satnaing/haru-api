@@ -21,7 +21,6 @@ beforeAll(() => adminLogin());
 describe("Customers", () => {
   describe("Get Customers", () => {
     it("GET /customers --> should return all customers", async () => {
-      console.log(authToken);
       const response = await request(app)
         .get(url)
         .set("Authorization", "Bearer " + authToken)
