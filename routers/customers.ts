@@ -4,11 +4,14 @@ import {
   getCustomer,
   getCustomers,
 } from "../controllers/customers";
+import { adminOnly } from "../middlewares/authHandler";
 
 const router = Router();
 
-router.get("/", getCustomers);
+router.get("/", adminOnly, getCustomers);
 
-router.get("/:id", getCustomer).delete("/:id", deleteCustomer);
+router
+  .get("/:id", adminOnly, getCustomer)
+  .delete("/:id", adminOnly, deleteCustomer);
 
 export default router;

@@ -3,13 +3,28 @@ import app from "../app";
 import "jest-extended";
 import { errorTypes, resource404Error } from "../utils/errorObject";
 import prisma from "../prisma/client";
+
 const url = "/api/v1/customers";
+
+let authToken = "";
+
+// Login as superadmin
+const adminLogin = async () => {
+  const response = await request(app)
+    .post(`/api/v1/admins/login`)
+    .send({ email: "superadmin@gmail.com", password: "superadmin" });
+  authToken = response.body.token;
+};
+
+beforeAll(() => adminLogin());
 
 describe("Customers", () => {
   describe("Get Customers", () => {
     it("GET /customers --> should return all customers", async () => {
+      console.log(authToken);
       const response = await request(app)
         .get(url)
+        .set("Authorization", "Bearer " + authToken)
         .expect("Content-Type", /json/)
         .expect(200);
 
@@ -33,6 +48,7 @@ describe("Customers", () => {
     it("GET /customers/:id --> should return specific customer", async () => {
       const response = await request(app)
         .get(`${url}/3`)
+        .set("Authorization", "Bearer " + authToken)
         .expect("Content-Type", /json/)
         .expect(200);
 
@@ -51,6 +67,7 @@ describe("Customers", () => {
     it("GET /customers/:id --> should throw 404 if customer not found", async () => {
       const response = await request(app)
         .get(`${url}/999`)
+        .set("Authorization", "Bearer " + authToken)
         .expect("Content-Type", /json/)
         .expect(404);
 
@@ -64,7 +81,7 @@ describe("Customers", () => {
       // create a customer to be deleted
       const customer = await prisma.customer.create({
         data: {
-          email: "testuser2@gmail.com",
+          email: "testuser3@gmail.com",
           fullname: "testuser",
           password: "somerandompwd",
           shippingAddress: "someaddr",
@@ -73,12 +90,14 @@ describe("Customers", () => {
       });
       const response = await request(app)
         .delete(`${url}/${customer.id}`)
+        .set("Authorization", "Bearer " + authToken)
         .expect(204);
     });
 
     it("DELETE /customers/:id --> should return 404 if user not found", async () => {
       const response = await request(app)
         .delete(`${url}/9999`)
+        .set("Authorization", "Bearer " + authToken)
         .expect("Content-Type", /json/)
         .expect(404);
 
