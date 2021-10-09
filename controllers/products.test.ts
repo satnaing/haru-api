@@ -10,6 +10,17 @@ import prisma from "../prisma/client";
 
 const url = `/api/v1/products`;
 
+let authToken = "";
+
+const adminLogin = async () => {
+  const response = await request(app)
+    .post(`/api/v1/admins/login`)
+    .send({ email: "superadmin@gmail.com", password: "superadmin" });
+  authToken = response.body.token;
+};
+
+adminLogin();
+
 describe("Product Controler", () => {
   describe("Get Products", () => {
     it("GET /products --> return all products", async () => {
@@ -259,6 +270,7 @@ describe("Product Controler", () => {
       };
       const response = await request(app)
         .post(url)
+        .set("Authorization", "Bearer " + authToken)
         .send(newProduct)
         .expect("Content-Type", /json/)
         .expect(201);
@@ -284,6 +296,7 @@ describe("Product Controler", () => {
     it("POST /products --> throws error if required field is missing", async () => {
       const response = await request(app)
         .post(url)
+        .set("Authorization", "Bearer " + authToken)
         .expect("Content-Type", /json/)
         .expect(400);
 
@@ -329,6 +342,7 @@ describe("Product Controler", () => {
       };
       const response = await request(app)
         .post(url)
+        .set("Authorization", "Bearer " + authToken)
         .send(reqBody)
         .expect("Content-Type", /json/)
         .expect(400);
@@ -348,6 +362,7 @@ describe("Product Controler", () => {
       };
       const response = await request(app)
         .post(url)
+        .set("Authorization", "Bearer " + authToken)
         .send(reqBody)
         .expect("Content-Type", /json/)
         .expect(400);
@@ -368,6 +383,7 @@ describe("Product Controler", () => {
       };
       const response = await request(app)
         .post(url)
+        .set("Authorization", "Bearer " + authToken)
         .send(reqBody)
         .expect("Content-Type", /json/)
         .expect(400);
@@ -378,6 +394,7 @@ describe("Product Controler", () => {
       const reqBody2 = { ...reqBody, stock: "23.22" };
       const response2 = await request(app)
         .post(url)
+        .set("Authorization", "Bearer " + authToken)
         .send(reqBody2)
         .expect("Content-Type", /json/)
         .expect(400);
@@ -403,6 +420,7 @@ describe("Product Controler", () => {
     it("PUT /products/:id --> should update a product", async () => {
       const response = await request(app)
         .put(`${url}/3`)
+        .set("Authorization", "Bearer " + authToken)
         .send(reqBody)
         .expect("Content-Type", /json/)
         .expect(200);
@@ -422,6 +440,7 @@ describe("Product Controler", () => {
     it("PUT /products/:id --> 404 if product not found", async () => {
       const response = await request(app)
         .put(`${url}/9999`)
+        .set("Authorization", "Bearer " + authToken)
         .send(reqBody)
         .expect("Content-Type", /json/)
         .expect(404);
@@ -437,6 +456,7 @@ describe("Product Controler", () => {
     it("PUT /products/:id --> price should be positive float", async () => {
       const response = await request(app)
         .put(`${url}/3`)
+        .set("Authorization", "Bearer " + authToken)
         .send({ ...reqBody, price: "some string" })
         .expect("Content-Type", /json/)
         .expect(400);
@@ -445,6 +465,7 @@ describe("Product Controler", () => {
 
       const response2 = await request(app)
         .put(`${url}/3`)
+        .set("Authorization", "Bearer " + authToken)
         .send({ ...reqBody, price: "-100" })
         .expect("Content-Type", /json/)
         .expect(400);
@@ -455,6 +476,7 @@ describe("Product Controler", () => {
     it("PUT /products/:id --> stock should be positive integer", async () => {
       const response = await request(app)
         .put(`${url}/3`)
+        .set("Authorization", "Bearer " + authToken)
         .send({ ...reqBody, stock: "some string" })
         .expect("Content-Type", /json/)
         .expect(400);
@@ -464,6 +486,7 @@ describe("Product Controler", () => {
 
       const response2 = await request(app)
         .put(`${url}/3`)
+        .set("Authorization", "Bearer " + authToken)
         .send({ ...reqBody, stock: "-100" })
         .expect("Content-Type", /json/)
         .expect(400);
@@ -475,6 +498,7 @@ describe("Product Controler", () => {
     it("PUT /products/:id --> category id should be existing category", async () => {
       const response = await request(app)
         .put(`${url}/3`)
+        .set("Authorization", "Bearer " + authToken)
         .send({ ...reqBody, categoryId: "999" })
         .expect("Content-Type", /json/)
         .expect(400);
@@ -496,6 +520,7 @@ describe("Product Controler", () => {
       });
       const response = await request(app)
         .delete(`${url}/${latestProduct!.id}`)
+        .set("Authorization", "Bearer " + authToken)
         .expect(204);
 
       expect(response.status).toBe(204);
@@ -504,6 +529,7 @@ describe("Product Controler", () => {
     it("DELETE /products/:id --> should throw 404 if not found", async () => {
       const response = await request(app)
         .delete(`${url}/9999`)
+        .set("Authorization", "Bearer " + authToken)
         .expect("Content-Type", /json/)
         .expect(404);
 

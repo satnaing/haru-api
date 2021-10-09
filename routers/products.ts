@@ -7,17 +7,18 @@ import {
   searchProducts,
   updateProduct,
 } from "../controllers/products";
+import { adminOnly } from "../middlewares/authHandler";
 
 const router = Router();
 
 router
   .get("/", getProducts)
   .get("/search", searchProducts)
-  .post("/", createProduct);
+  .post("/", adminOnly, createProduct);
 
 router
   .get("/:id", getProduct)
-  .put("/:id", updateProduct)
-  .delete("/:id", deleteProduct);
+  .put("/:id", adminOnly, updateProduct)
+  .delete("/:id", adminOnly, deleteProduct);
 
 export default router;
