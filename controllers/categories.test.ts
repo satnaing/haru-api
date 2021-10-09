@@ -6,6 +6,24 @@ import { errorTypes, resource404Error } from "../utils/errorObject";
 
 const url = "/api/v1/categories";
 
+const testCategory = {
+  id: 778,
+  name: "sneakers",
+  description: "sapien non mi integer ac neque duis bibendum morbi non",
+  thumbnailImage: "http://dummyimage.com/720x400.png/cc0000/ffffff",
+};
+
+let authToken = "";
+
+const adminLogin = async () => {
+  const response = await request(app)
+    .post(`/api/v1/admins/login`)
+    .send({ email: "superadmin@gmail.com", password: "superadmin" });
+  authToken = response.body.token;
+};
+
+beforeAll(() => adminLogin());
+
 describe("Categories Controller", () => {
   describe("Get Categories", () => {
     it("GET /categories --> return categories", async () => {
@@ -102,15 +120,9 @@ describe("Categories Controller", () => {
 
   describe("Create Category", () => {
     it("POST /categories --> create a new category", async () => {
-      const testCategory = {
-        id: 777,
-        name: "sneakers",
-        description: "sapien non mi integer ac neque duis bibendum morbi non",
-        thumbnailImage: "http://dummyimage.com/720x400.png/cc0000/ffffff",
-      };
-
       const response = await request(app)
         .post(url)
+        .set("Authorization", "Bearer " + authToken)
         .send(testCategory)
         .expect("Content-Type", /json/)
         .expect(201);
@@ -139,6 +151,7 @@ describe("Categories Controller", () => {
       const response = await request(app)
         .post(url)
         .send(testCategory)
+        .set("Authorization", "Bearer " + authToken)
         .set("Accept", "application/json")
         .expect("Content-Type", /json/)
         .expect(400);
@@ -156,6 +169,7 @@ describe("Categories Controller", () => {
     it("POST /categories --> return error if name is not sent in body", async () => {
       const response = await request(app)
         .post(url)
+        .set("Authorization", "Bearer " + authToken)
         .expect("Content-Type", /json/)
         .expect(400);
 
@@ -187,14 +201,10 @@ describe("Categories Controller", () => {
       thumbnailImage: "somedummyimage.png",
     };
 
-    // name            String     @db.VarChar(50) @unique
-    // description     String?    @db.VarChar(255)
-    // thumbnailImage  String?    @db.VarChar(100) @map("thumbnail_image")
-    // createdAt       DateTime  @default(now()) @map("created_at")
-    // updatedAt       DateTime?  @map("updated_at")
     it("PUT /categories/:id --> should update category", async () => {
       const response = await request(app)
-        .put(`${url}/777`)
+        .put(`${url}/${testCategory.id}`)
+        .set("Authorization", "Bearer " + authToken)
         .send(reqBody)
         .expect("Content-Type", /json/)
         .expect(200);
@@ -209,11 +219,14 @@ describe("Categories Controller", () => {
     });
 
     it("PUT /categories/:id --> 404 if category not found", async () => {
-      const response = await request(app).put(`${url}/9999`).send(reqBody);
-      //   .expect("Content-Type", /json/)
-      //   .expect(404);
+      const response = await request(app)
+        .put(`${url}/9999`)
+        .set("Authorization", "Bearer " + authToken)
+        .send(reqBody)
+        .expect("Content-Type", /json/)
+        .expect(404);
 
-      // expect(response.body.success).toBe(false);
+      expect(response.body.success).toBe(false);
       expect(response.body.error).toEqual({
         status: 404,
         type: errorTypes.notFound,
@@ -224,12 +237,16 @@ describe("Categories Controller", () => {
 
   describe("Delete Category", () => {
     it("DELETE /categories/:id --> delete a specific category", async () => {
-      const response = await request(app).delete(`${url}/777`).expect(204);
+      const response = await request(app)
+        .delete(`${url}/${testCategory.id}`)
+        .set("Authorization", "Bearer " + authToken)
+        .expect(204);
     });
 
     it("DELETE /categories/:id --> return 404 error if category not found", async () => {
       const response = await request(app)
-        .delete(`${url}/777`)
+        .delete(`${url}/${testCategory.id}`)
+        .set("Authorization", "Bearer " + authToken)
         .expect("Content-Type", /json/)
         .expect(404);
 

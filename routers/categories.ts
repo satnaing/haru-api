@@ -6,14 +6,16 @@ import {
   getCategory,
   updateCategory,
 } from "../controllers/categories";
+import { adminOnly } from "../middlewares/authHandler";
 
 const router = Router();
 
-router.get("/", getCategories).post("/", createCategory);
+router.route("/").get(getCategories).post(adminOnly, createCategory);
 
 router
-  .get("/:id", getCategory)
-  .put("/:id", updateCategory)
-  .delete("/:id", deleteCategory);
+  .route("/:id")
+  .get(getCategory)
+  .put(adminOnly, updateCategory)
+  .delete(adminOnly, deleteCategory);
 
 export default router;
