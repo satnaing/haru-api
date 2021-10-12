@@ -1,5 +1,8 @@
 import express from "express";
 import morgan from "morgan";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
+import cors from "cors";
 import errorHandler from "./middlewares/errorHandler";
 
 // import routes
@@ -12,6 +15,19 @@ import ErrorResponse from "./utils/errorResponse";
 import { resource404Error } from "./utils/errorObject";
 
 const app = express();
+
+// Enable CORS
+app.use(cors());
+
+// Set HTTP Hseaders
+app.use(helmet());
+
+// Set Rate Limit
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+});
+app.use(limiter);
 
 process.env.NODE_ENV === "development" && app.use(morgan("dev"));
 
