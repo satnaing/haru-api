@@ -3,6 +3,8 @@ import morgan from "morgan";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import cors from "cors";
+import ErrorResponse from "./utils/errorResponse";
+import { resource404Error } from "./utils/errorObject";
 import errorHandler from "./middlewares/errorHandler";
 
 // import routes
@@ -11,8 +13,6 @@ import products from "./routers/products";
 import customers from "./routers/customers";
 import admins from "./routers/admins";
 import auth from "./routers/auth";
-import ErrorResponse from "./utils/errorResponse";
-import { resource404Error } from "./utils/errorObject";
 
 const app = express();
 
@@ -34,6 +34,7 @@ process.env.NODE_ENV === "development" && app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Routes
 app.use("/api/v1/categories", categories);
 app.use("/api/v1/products", products);
 app.use("/api/v1/customers", customers);
