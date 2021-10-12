@@ -99,16 +99,6 @@ export const authRequiredError = errorObj(
 );
 
 /**
- * 404 Page Not Found Error
- * @description { 404, notFound, "page not found" }
- */
-export const page404Error = errorObj(
-  404,
-  errorTypes.notFound,
-  "page not found"
-);
-
-/**
  * 404 Resource Not Found Error
  * @param resource - resource to return as message
  * @return errorObj - { 404, notFound, "${resource} not found" }
