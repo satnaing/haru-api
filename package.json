@@ -6,8 +6,6 @@
   "scripts": {
     "start": "node /app/dist/server.js",
     "start2": "node server.ts",
-    "tsc": "tsc",
-    "postinstall": "npm run tsc",
     "devStart": "nodemon server.ts",
     "dev": "docker-compose up",
     "dev:down": "docker-compose down",
