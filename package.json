@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node dist/server.js",
+    "start2": "node server.ts",
     "devStart": "nodemon server.ts",
     "dev": "docker-compose up",
     "dev:down": "docker-compose down",
