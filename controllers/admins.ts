@@ -1,11 +1,12 @@
 import asyncHandler from "../middlewares/asyncHandler";
 import prisma from "../prisma/client";
-import errorObj, {
-  errorTypes,
+import { customers, categories, products, admins } from "../db/data";
+import {
   invalidEmail,
   incorrectCredentialsError,
   resource404Error,
   roleError,
+  unauthorizedError,
 } from "../utils/errorObject";
 import ErrorResponse from "../utils/errorResponse";
 import { ExtendedRequest } from "../utils/extendedRequest";
@@ -324,5 +325,47 @@ export const deleteAdmin = asyncHandler(async (req, res, next) => {
 
   res.status(203).json({
     success: true,
+  });
+});
+
+/**
+ * Seed Data
+ * @route   POST /api/v1/admins/seed
+ * @access  Private (superadmin)
+ */
+export const seedData = asyncHandler(async (req, res, next) => {
+  const password = req.body.password;
+
+  if (password !== process.env.SEEDING_PASSWORD) {
+    return next(new ErrorResponse(unauthorizedError, 403));
+  }
+
+  for (let customer of customers) {
+    await prisma.customer.create({
+      data: customer,
+    });
+  }
+
+  for (let category of categories) {
+    await prisma.category.create({
+      data: category,
+    });
+  }
+
+  for (let product of products) {
+    await prisma.product.create({
+      data: product,
+    });
+  }
+
+  for (let admin of admins) {
+    await prisma.admin.create({
+      data: admin,
+    });
+  }
+
+  res.status(201).json({
+    success: true,
+    message: "Database seeding complete successfully",
   });
 });
