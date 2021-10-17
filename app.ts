@@ -1,5 +1,5 @@
 import express from "express";
-import morgan from "morgan";
+// import morgan from "morgan";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import cors from "cors";
@@ -29,7 +29,7 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-process.env.NODE_ENV === "development" && app.use(morgan("dev"));
+// process.env.NODE_ENV === "development" && app.use(morgan("dev"));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
