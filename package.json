@@ -19,6 +19,10 @@
     "test": "npm run test:up && sleep 5; npm run migrate:test && npm run seed:test && dotenv -e .env.test jest -- --watchAll",
     "test:circle": "jest -i"
   },
+  "engines": {
+    "node": "14.x",
+    "npm": "6.x"
+  },
   "prisma": {
     "seed": "ts-node db/seed.ts"
   },
