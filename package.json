@@ -20,8 +20,7 @@
     "test:circle": "jest -i"
   },
   "engines": {
-    "node": "14.x",
-    "npm": "6.x"
+    "node": "16.x"
   },
   "prisma": {
     "seed": "ts-node db/seed.ts"
