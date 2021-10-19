@@ -1,8 +1,8 @@
 {
   "name": "haru-api",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "A RESTful API for Haru-Fashion e-commerce web application.",
+  "main": "server.js",
   "scripts": {
     "start": "node dist/server.js",
     "devStart": "nodemon server.ts",
@@ -21,7 +21,14 @@
   "prisma": {
     "seed": "ts-node db/seed.ts"
   },
-  "keywords": [],
+  "keywords": [
+    "nodejs",
+    "express",
+    "prisma",
+    "postgresql",
+    "api",
+    "rest-api"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
