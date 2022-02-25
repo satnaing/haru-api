@@ -32,6 +32,7 @@ export const getProducts = asyncHandler(async (req, res, next) => {
   const queryLimit = req.query.limit;
   const queryPrice = req.query.price;
   const queryStock = req.query.stock;
+  const queryCategory = req.query.category;
 
   // init variables
   let select: Prisma.ProductSelect | undefined;
@@ -86,6 +87,17 @@ export const getProducts = asyncHandler(async (req, res, next) => {
     stock = filteredQty(queryStock as string | string[]);
   }
 
+  let categoryId: number | undefined;
+  if (queryCategory) {
+    const category = await prisma.category.findUnique({
+      where: { name: queryCategory as string },
+    });
+    if (!category) {
+      return next(new ErrorResponse(resource404Error("category"), 404));
+    }
+    categoryId = category.id;
+  }
+
   const products = await prisma.product.findMany({
     select,
     orderBy,
@@ -114,6 +126,9 @@ export const getProducts = asyncHandler(async (req, res, next) => {
           ],
         },
       ],
+      categoryId: {
+        equals: categoryId,
+      },
     },
 
     // include: { category: true },
