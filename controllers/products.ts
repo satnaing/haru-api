@@ -15,11 +15,10 @@ import errorObj, {
   invalidQuery,
   resource404Error,
 } from "../utils/errorObject";
-import { NextFunction } from "express";
 
 /**
  * Get all products
- * @route   GET /api/v1/categories
+ * @route   GET /api/v1/products
  * @access  Public
  */
 export const getProducts = asyncHandler(async (req, res, next) => {
@@ -43,6 +42,7 @@ export const getProducts = asyncHandler(async (req, res, next) => {
   let take: number | undefined;
   let price: FilteredType[] = [];
   let stock: FilteredType[] = [];
+  let categoryId: number | undefined;
 
   // if select param is requested
   if (querySelect) {
@@ -87,7 +87,6 @@ export const getProducts = asyncHandler(async (req, res, next) => {
     stock = filteredQty(queryStock as string | string[]);
   }
 
-  let categoryId: number | undefined;
   if (queryCategory) {
     const category = await prisma.category.findUnique({
       where: { name: queryCategory as string },
@@ -142,8 +141,42 @@ export const getProducts = asyncHandler(async (req, res, next) => {
 });
 
 /**
+ * Get product count
+ * @route   GET /api/v1/products
+ * @access  Public
+ */
+export const getProductCount = asyncHandler(async (req, res, next) => {
+  // requested queries
+  const queryCategory = req.query.category;
+
+  let categoryId: number | undefined;
+  if (queryCategory) {
+    const category = await prisma.category.findUnique({
+      where: { name: queryCategory as string },
+    });
+    if (!category) {
+      return next(new ErrorResponse(resource404Error("category"), 404));
+    }
+    categoryId = category.id;
+  }
+
+  const products = await prisma.product.findMany({
+    where: {
+      categoryId: {
+        equals: categoryId,
+      },
+    },
+  });
+
+  res.status(200).json({
+    success: true,
+    count: products.length,
+  });
+});
+
+/**
  * Search products
- * @route   GET /api/v1/categories/search
+ * @route   GET /api/v1/products/search
  * @access  Public
  */
 export const searchProducts = asyncHandler(async (req, res, next) => {
@@ -174,7 +207,7 @@ export const searchProducts = asyncHandler(async (req, res, next) => {
 
 /**
  * Get specific products
- * @route   GET /api/v1/categories/:id
+ * @route   GET /api/v1/products/:id
  * @access  Public
  */
 export const getProduct = asyncHandler(async (req, res, next) => {
@@ -210,7 +243,7 @@ export const getProduct = asyncHandler(async (req, res, next) => {
 
 /**
  * Create new product
- * @route   POST /api/v1/categories
+ * @route   POST /api/v1/products
  * @access  Private
  */
 export const createProduct = asyncHandler(async (req, res, next) => {
@@ -296,7 +329,7 @@ export const createProduct = asyncHandler(async (req, res, next) => {
 
 /**
  * Update a product
- * @route   PUT /api/v1/categories/:id
+ * @route   PUT /api/v1/products/:id
  * @access  Private
  */
 export const updateProduct = asyncHandler(async (req, res, next) => {
@@ -362,7 +395,7 @@ export const updateProduct = asyncHandler(async (req, res, next) => {
 
 /**
  * Delete a product
- * @route   DELETE /api/v1/categories:id
+ * @route   DELETE /api/v1/products/:id
  * @access  Private
  */
 export const deleteProduct = asyncHandler(async (req, res, next) => {

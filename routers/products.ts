@@ -3,6 +3,7 @@ import {
   createProduct,
   deleteProduct,
   getProduct,
+  getProductCount,
   getProducts,
   searchProducts,
   updateProduct,
@@ -13,6 +14,7 @@ const router = Router();
 
 router
   .get("/", getProducts)
+  .get("/count", getProductCount)
   .get("/search", searchProducts)
   .post("/", adminOnly, createProduct);
 
