@@ -105,6 +105,12 @@ export const loginCustomer = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     token: token,
+    data: {
+      email: customer.email,
+      fullname: customer.fullname,
+      shippingAddress: customer.shippingAddress,
+      phone: customer.phone,
+    },
   });
 });
 
