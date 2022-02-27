@@ -126,6 +126,12 @@ Then add the following environment variables.
 `NODE_ENV=testing`  
 `DATABASE_URL="postgresql://prisma:prisma@localhost:5437/tests"`
 
+Note! dotenv-cli must be installed golbally before running any test
+
+```bash
+sudo npm install -g dotenv-cli
+```
+
 Run the test
 
 ```bash
