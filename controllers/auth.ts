@@ -34,7 +34,7 @@ export const registerCustomer = asyncHandler(async (req, res, next) => {
   const phone: string = req.body.phone; // null
 
   // Check required fields
-  const requiredFields = { email, fullname, password, shippingAddress };
+  const requiredFields = { email, fullname, password };
   const hasError = checkRequiredFields(requiredFields, next);
   if (hasError !== false) return hasError;
 
