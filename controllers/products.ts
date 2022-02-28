@@ -285,8 +285,11 @@ export const createProduct = asyncHandler(async (req, res, next) => {
   }
 
   // Throws error if stock field is not integer
-  if (stock && !isIntegerAndPositive(stock)) {
-    return next(new ErrorResponse(invalidStockError, 400));
+  if (stock) {
+    if (stock && !isIntegerAndPositive(stock)) {
+      return next(new ErrorResponse(invalidStockError, 400));
+    }
+    stock = parseInt(stock);
   }
 
   // Throws error if categoryId is invalid
@@ -297,6 +300,7 @@ export const createProduct = asyncHandler(async (req, res, next) => {
     if (!category) {
       return next(new ErrorResponse(invalidCategoryError(categoryId), 400));
     }
+    categoryId = parseInt(categoryId);
   }
 
   // let id: any;
@@ -313,11 +317,11 @@ export const createProduct = asyncHandler(async (req, res, next) => {
       description,
       detail,
       category: {
-        connect: { id: parseInt(categoryId) },
+        connect: { id: categoryId },
       },
       image1,
       image2,
-      stock: parseInt(stock),
+      stock,
     },
   });
 
@@ -335,7 +339,7 @@ export const createProduct = asyncHandler(async (req, res, next) => {
 export const updateProduct = asyncHandler(async (req, res, next) => {
   const id = parseInt(req.params.id);
 
-  const {
+  let {
     name,
     price,
     discountPercent,
@@ -348,13 +352,19 @@ export const updateProduct = asyncHandler(async (req, res, next) => {
   } = req.body;
 
   // Throws error if price field is not number
-  if (!parseFloat(price) || parseFloat(price) < 0) {
-    return next(new ErrorResponse(invalidPriceError, 400));
+  if (price) {
+    if (!parseFloat(price) || parseFloat(price) < 0) {
+      return next(new ErrorResponse(invalidPriceError, 400));
+    }
+    price = parseFloat(price);
   }
 
   // Throws error if stock field is not integer
-  if (stock && !isIntegerAndPositive(stock)) {
-    return next(new ErrorResponse(invalidStockError, 400));
+  if (stock) {
+    if (!isIntegerAndPositive(stock)) {
+      return next(new ErrorResponse(invalidStockError, 400));
+    }
+    stock = parseInt(stock);
   }
 
   // Throws error if categoryId is invalid
@@ -365,24 +375,35 @@ export const updateProduct = asyncHandler(async (req, res, next) => {
     if (!category) {
       return next(new ErrorResponse(invalidCategoryError(categoryId), 400));
     }
+    categoryId = parseInt(categoryId);
   }
+
+  if (discountPercent) {
+    discountPercent = parseFloat(discountPercent);
+  }
+
+  const existingProduct = await prisma.product.findUnique({
+    where: { id },
+  });
 
   const product = await prisma.product.update({
     where: { id },
     data: {
-      name,
-      price,
-      discountPercent: parseFloat(discountPercent),
-      description,
-      detail,
+      name: name ? name : existingProduct?.name,
+      price: price ? price : existingProduct?.price,
+      discountPercent: discountPercent
+        ? discountPercent
+        : existingProduct?.discountPercent,
+      description: description ? description : existingProduct?.description,
+      detail: detail ? detail : existingProduct?.detail,
       category: {
         connect: {
-          id: parseInt(categoryId),
+          id: categoryId ? categoryId : existingProduct?.categoryId,
         },
       },
-      image1,
-      image2,
-      stock: parseInt(stock),
+      image1: image1 ? image1 : existingProduct?.image1,
+      image2: image2 ? image2 : existingProduct?.image2,
+      stock: stock ? stock : existingProduct?.stock,
       updatedAt: new Date().toISOString(),
     },
   });
