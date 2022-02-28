@@ -64,10 +64,6 @@ describe("Auth Controller", () => {
             code: "missingPassword",
             message: "password field is missing",
           },
-          {
-            code: "missingShippingAddress",
-            message: "shippingAddress field is missing",
-          },
         ],
       });
     });
