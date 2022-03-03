@@ -38,6 +38,26 @@ export const selectedQuery = (query: string) =>
   query.split(",").reduce((a, v) => ({ ...a, [v.trim()]: true }), {});
 
 /**
+ * Select all fields from product table
+ * @returns object { id: true, name: true, ... , updatedAt: true }
+ * @example { name: true, price: true, stock: true , ... }
+ */
+export const selectAllProductField = () => ({
+  id: true,
+  name: true,
+  price: true,
+  discountPercent: true,
+  description: true,
+  detail: true,
+  categoryId: true,
+  image1: true,
+  image2: true,
+  stock: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+/**
  * Receive string and return array of { key: value } pairs
  * @param query - query string
  * @returns array of object [ {key:value}, etc]
