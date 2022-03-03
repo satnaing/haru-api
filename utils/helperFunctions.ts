@@ -11,6 +11,22 @@ import ErrorResponse from "./errorResponse";
 
 type OrderType = { [key: string]: string };
 type FilteredType = { [key: string]: number };
+export type ProductSelectType = {
+  id: boolean;
+  name: boolean;
+  price: boolean;
+  discountPercent: boolean;
+  description: boolean;
+  detail: boolean;
+  categoryId: boolean;
+  image1: boolean;
+  image2: boolean;
+  stock: boolean;
+  createdAt: boolean;
+  updatedAt: boolean;
+  tags: boolean;
+  category: boolean;
+};
 
 /**
  * Receive comma seperated string and return { string: true }
