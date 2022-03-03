@@ -5,6 +5,8 @@ import {
   filteredQty,
   isIntegerAndPositive,
   orderedQuery,
+  ProductSelectType,
+  selectAllProductField,
   selectedQuery,
 } from "../utils/helperFunctions";
 import { Prisma } from ".prisma/client";
@@ -26,6 +28,7 @@ export const getProducts = asyncHandler(async (req, res, next) => {
 
   // requested queries
   const querySelect = req.query.select;
+  const queryInclude = req.query.include;
   const queryOrderBy = req.query.order_by;
   const queryOffset = req.query.offset;
   const queryLimit = req.query.limit;
@@ -34,7 +37,7 @@ export const getProducts = asyncHandler(async (req, res, next) => {
   const queryCategory = req.query.category;
 
   // init variables
-  let select: Prisma.ProductSelect | undefined;
+  let select: Prisma.ProductSelect | ProductSelectType | undefined;
   let orderBy:
     | Prisma.Enumerable<Prisma.ProductOrderByWithRelationInput>
     | undefined;
@@ -44,9 +47,51 @@ export const getProducts = asyncHandler(async (req, res, next) => {
   let stock: FilteredType[] = [];
   let categoryId: number | undefined;
 
-  // if select param is requested
-  if (querySelect) {
+  // return error if include field is not tags or category
+  if (queryInclude) {
+    const includedFields = (queryInclude as string).split(",");
+    let error = false;
+    includedFields.forEach((field) => {
+      if (field !== "tags" && field !== "category") {
+        error = true;
+      }
+    });
+
+    if (error) {
+      return next(
+        new ErrorResponse(
+          {
+            status: 400,
+            type: errorTypes.badRequest,
+            message: "include field is not correct",
+          },
+          400
+        )
+      );
+    }
+  }
+
+  // if select & !include
+  if (querySelect && !queryInclude) {
     select = selectedQuery(querySelect as string);
+  }
+  // if select & include
+  else if (querySelect && queryInclude) {
+    const selectedFields = selectedQuery(querySelect as string);
+    const includedFields = selectedQuery(queryInclude as string);
+    select = {
+      ...selectedFields,
+      ...includedFields,
+    };
+  }
+  // if include & !select
+  else if (!querySelect && queryInclude) {
+    const selectAll = selectAllProductField();
+    const includedFields = selectedQuery(queryInclude as string);
+    select = {
+      ...selectAll,
+      ...includedFields,
+    };
   }
 
   // if order_by param is requested
@@ -87,6 +132,7 @@ export const getProducts = asyncHandler(async (req, res, next) => {
     stock = filteredQty(queryStock as string | string[]);
   }
 
+  // if req products with certain category
   if (queryCategory) {
     const category = await prisma.category.findUnique({
       where: { name: queryCategory as string },
@@ -129,6 +175,9 @@ export const getProducts = asyncHandler(async (req, res, next) => {
         equals: categoryId,
       },
     },
+    // include: {
+    //   tags: true,
+    // },
 
     // include: { category: true },
   });
@@ -322,6 +371,9 @@ export const createProduct = asyncHandler(async (req, res, next) => {
       image1,
       image2,
       stock,
+      // categories: {
+      //   create: [{ name: 'Magic' }, { name: 'Butterflies' }],
+      // },
     },
   });
 
