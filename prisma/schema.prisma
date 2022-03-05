@@ -61,6 +61,14 @@ model Product {
   @@map("products")
 }
 
+model Tag {
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(50)
+  products    Product[]
+
+  @@map("tags")
+}
+
 model Customer {
   id                Int       @id @default(autoincrement())
   fullname          String    @db.VarChar(50)
@@ -78,27 +86,33 @@ model Customer {
 }
 
 model Order {
-  orderNumber   Int       @id @default(autoincrement()) @map("order_number")
-  customer      Customer  @relation(fields: [customerId], references: [id])
-  customerId    Int       @map("customer_id")
+  orderNumber   Int           @id @default(autoincrement()) @map("order_number")
+  customer      Customer      @relation(fields: [customerId], references: [id])
+  customerId    Int           @map("customer_id")
   address       String 
-  township      String    @db.VarChar(20)
-  city          String    @db.VarChar(20)
-  state         String    @db.VarChar(20)
-  zipCode       String    @db.VarChar(20) @map("zip_code")
-  orderDate     DateTime  @db.Date @map("order_date")
-  deliveryDate  DateTime  @db.Date @map("delivery_date")
+  township      String?       @db.VarChar(20)
+  city          String?       @db.VarChar(20)
+  state         String?       @db.VarChar(20)
+  zipCode       String?       @db.VarChar(20) @map("zip_code")
+  orderDate     DateTime      @db.Date @map("order_date")
+  paymentType   PaymentType   @default(CASH_ON_DELIVERY) @map("payment_type")
+  deliveryType  DeliveryType  @default(STORE_PICKUP) @map("delivery_type")
+  totalPrice    Float         @map("total_price")
+  deliveryDate  DateTime      @db.Date @map("delivery_date")
   order         OrderDetail[]
 
   @@map("orders")
 }
 
-model Tag {
-  id          Int       @id @default(autoincrement())
-  name        String    @db.VarChar(50)
-  products    Product[]
+enum DeliveryType {
+  STORE_PICKUP
+  YANGON
+  OTHERS
+}
 
-  @@map("tags")
+enum PaymentType {
+  CASH_ON_DELIVERY
+  BANK_TRANSFER
 }
 
 model OrderDetail {
