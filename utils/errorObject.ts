@@ -88,6 +88,40 @@ export const roleError = errorObj(
 );
 
 /**
+ * Payment Type Error
+ * @description { 400, invalidArgument, "payment type is not valid" }
+ */
+export const paymentTypeError = errorObj(
+  400,
+  errorTypes.invalidArgument,
+  "payment type is not valid",
+  [
+    {
+      code: "invalidPaymentType",
+      message:
+        "payment type must be one of 'CASH_ON_DELIVERY', 'BANK_TRANSFER'",
+    },
+  ]
+);
+
+/**
+ * Delivery Type Error
+ * @description { 400, invalidArgument, "delivery type is not valid" }
+ */
+export const deliveryTypeError = errorObj(
+  400,
+  errorTypes.invalidArgument,
+  "delivery type is not valid",
+  [
+    {
+      code: "invalidDeliveryType",
+      message:
+        "delivery type must be one of 'STORE_PICKUP', 'YANGON', or 'OTHERS'",
+    },
+  ]
+);
+
+/**
  * Auth Required Error
  * @description { 401, unauthorized, "authentication required" }
  */
