@@ -174,6 +174,11 @@ export const getProducts = asyncHandler(async (req, res, next) => {
       categoryId: {
         equals: categoryId,
       },
+      // tags: {
+      //   some: {
+      //     name: { in: ["skirt"] },
+      //   },
+      // },
     },
     // include: {
     //   tags: true,
@@ -371,6 +376,9 @@ export const createProduct = asyncHandler(async (req, res, next) => {
       image1,
       image2,
       stock,
+      // tags: {
+      //   create: [{ name: "trendy" }],
+      // },
       // categories: {
       //   create: [{ name: 'Magic' }, { name: 'Butterflies' }],
       // },
