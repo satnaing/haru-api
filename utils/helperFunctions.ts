@@ -155,6 +155,26 @@ export const checkRole = (role: string) => {
 };
 
 /**
+ * Check payment type
+ * @param paymentType
+ * @returns true | false
+ */
+export const checkPaymentType = (paymentType: string) => {
+  const allowedPaymentTypes = ["CASH_ON_DELIVERY", "BANK_TRANSFER"];
+  return allowedPaymentTypes.includes(paymentType) ? true : false;
+};
+
+/**
+ * Check delivery type
+ * @param deliveryType
+ * @returns true | false
+ */
+export const checkDeliveryType = (deliveryType: string) => {
+  const allowedDeliveryTypes = ["STORE_PICKUP", "YANGON", "OTHERS"];
+  return allowedDeliveryTypes.includes(deliveryType) ? true : false;
+};
+
+/**
  * Hash plain text password
  * @param password - plain password
  * @returns hashed password (Promise)
