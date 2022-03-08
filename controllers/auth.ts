@@ -65,6 +65,7 @@ export const registerCustomer = asyncHandler(async (req, res, next) => {
 
   res.status(201).json({
     success: true,
+    id: customer.id,
     token: token,
   });
 });
@@ -106,6 +107,7 @@ export const loginCustomer = asyncHandler(async (req, res, next) => {
     success: true,
     token: token,
     data: {
+      id: customer.id,
       email: customer.email,
       fullname: customer.fullname,
       shippingAddress: customer.shippingAddress,
