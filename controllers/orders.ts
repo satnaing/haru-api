@@ -6,13 +6,22 @@ import {
   checkPaymentType,
   checkRequiredFields,
 } from "../utils/helperFunctions";
-import { DeliveryType, PaymentType, OrderDetail } from ".prisma/client";
 import {
+  DeliveryType,
+  PaymentType,
+  OrderDetail,
+  Product,
+} from ".prisma/client";
+import {
+  defaultError,
   deliveryTypeError,
   invalidArgError,
   paymentTypeError,
   resource404Error,
 } from "../utils/errorObject";
+import sendMail from "../utils/sendEmail";
+import emailTemplate from "../utils/emailTemplate";
+import { Decimal } from "@prisma/client/runtime";
 
 /**
  * Get all orders
@@ -88,8 +97,8 @@ export const createOrder = asyncHandler(async (req, res, next) => {
   let deliveryDate: string | Date | undefined = req.body.deliveryDate;
   const paymentType: PaymentType | undefined = req.body.paymentType; // optional
   const deliveryType: DeliveryType | undefined = req.body.deliveryType; // optional
-  const products: Products | undefined = req.body.products; // [1, 2, 4, 5] => ids[]
-  // [ { id: 1002, quantity: 1 }, { id: 1020, quantity: 3 }]
+  const products: Products | undefined = req.body.products; // [ { id: 1002, quantity: 1 }, { id: 1020, quantity: 3 }]
+  const sendEmail: boolean | undefined = req.body.sendEmail; // optional
 
   const requiredFields = {
     customerId,
@@ -139,6 +148,9 @@ export const createOrder = asyncHandler(async (req, res, next) => {
       paymentType,
       deliveryType,
     },
+    include: {
+      customer: true,
+    },
   });
 
   type OrderDetailData = {
@@ -158,13 +170,58 @@ export const createOrder = asyncHandler(async (req, res, next) => {
     skipDuplicates: true,
   });
 
-  let createdOrderDetail: OrderDetail[] = [];
+  let createdOrderDetail: (OrderDetail & {
+    product: Product;
+  })[] = [];
   if (orderDetail) {
     createdOrderDetail = await prisma.orderDetail.findMany({
       where: {
         orderNumber: order.orderNumber,
       },
+      include: {
+        product: true,
+      },
     });
+  }
+
+  // if order and orderDetail succeed
+  // and sendEmail option is true
+  if (order && orderDetail && sendEmail) {
+    try {
+      // get purchased items in formatted array
+      const items = createdOrderDetail.map((orderItem) => ({
+        name: orderItem.product.name,
+        qty: orderItem.quantity,
+        price: "" + orderItem.product.price,
+      }));
+
+      // invoke emailTemplate function and
+      // store returned html in message variable
+      const message = emailTemplate(
+        order.orderNumber,
+        order.totalPrice,
+        order.shippingAddress,
+        "" + deliveryDate,
+        items
+      );
+
+      // send email to user
+      await sendMail({
+        email: order.customer.email,
+        subject: "Haru Fashion Order Received",
+        message,
+      });
+      res.status(201).json({
+        success: true,
+        data: order,
+        orderDetail: createdOrderDetail,
+      });
+    } catch (err) {
+      // Log error
+      console.error(err);
+
+      return next(new ErrorResponse(defaultError, 500));
+    }
   }
 
   res.status(201).json({
