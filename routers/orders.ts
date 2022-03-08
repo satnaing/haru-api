@@ -10,7 +10,7 @@ import { adminOnly } from "../middlewares/authHandler";
 
 const router = Router();
 
-router.route("/").get(adminOnly, getOrders).post(adminOnly, createOrder);
+router.route("/").get(adminOnly, getOrders).post(createOrder);
 
 // TESTing only
 router.route("/").patch(adminOnly, getOrderDetails);

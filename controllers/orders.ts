@@ -74,7 +74,7 @@ export const getOrderDetails = asyncHandler(async (req, res, next) => {
 /**
  * Create new order
  * @route   POST /api/v1/orders
- * @access  Private (admin)
+ * @access  Public
  */
 export const createOrder = asyncHandler(async (req, res, next) => {
   type Products = {
