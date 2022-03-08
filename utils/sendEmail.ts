@@ -12,6 +12,7 @@ type Email = {
  * @param emailObject - { Email, subject, message }
  */
 const sendMail = async ({ email, subject, message }: Email) => {
+  console.log(process.env.SENDGRID_API_KEY);
   sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
   const msg = {
     to: email,
@@ -26,6 +27,7 @@ const sendMail = async ({ email, subject, message }: Email) => {
       console.log("Email sent");
     })
     .catch((error) => {
+      console.log("Email not sent");
       console.error(error);
     });
 
